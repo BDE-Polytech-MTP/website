@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>OAuth2 authorization</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="/public/oauth-autorize.css" />
+        <link rel="stylesheet" href="/public/bootstrap.min.css" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="card position-absolute top-50 start-50 translate-middle" style="width: 18rem;">
+                <div class="card-header">
+                    Authentification OAuth2
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Autorisation d'une application tierce</h5>
+                    <p class="card-text">
+                        Vous n'avez pas donné la permission à l'application <b>{{ client_name }}</b> d'accéder
+                        à vos données.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
