@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsIn, IsString, ValidateIf } from 'class-validator';
 
 export class AccessTokenRequest {
-  // Commmon
+  // Common
 
   @ApiProperty({
     description: 'The type of granting which is desired to be used',
