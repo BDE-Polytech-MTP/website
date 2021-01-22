@@ -19,22 +19,22 @@ export class OAuthAuthorizationCode {
   code: string;
 
   @Column({ type: 'timestamp with time zone' })
-  issued_at: Date;
+  issuedAt: Date;
 
   @Column({ array: true, type: 'character varying' })
   scopes: string[];
 
-  @ManyToOne(() => OAuthClient, (client) => client.authorization_codes, {
+  @ManyToOne(() => OAuthClient, (client) => client.authorizationCodes, {
     nullable: false,
   })
   client: OAuthClient;
 
-  @ManyToOne(() => ResourceOwner, (owner) => owner.authorization_codes, {
+  @ManyToOne(() => ResourceOwner, (owner) => owner.authorizationCodes, {
     nullable: false,
   })
-  resource_owner: ResourceOwner;
+  resourceOwner: ResourceOwner;
 
-  @OneToOne(() => OAuthToken, (token) => token.generation_code)
+  @OneToOne(() => OAuthToken, (token) => token.generationCode)
   @JoinColumn()
   token?: OAuthToken;
 
@@ -45,13 +45,13 @@ export class OAuthAuthorizationCode {
   isExpired() {
     return moment()
       .subtract(AUTHORIZATION_CODE_VALIDITY_DURATION, 's')
-      .isAfter(this.issued_at);
+      .isAfter(this.issuedAt);
   }
 
   hasBeenGeneratedBy(clientId: string, clientSecret: string) {
     return (
-      clientId === this.client.client_id &&
-      clientSecret === this.client.client_secret
+      clientId === this.client.clientID &&
+      clientSecret === this.client.clientSecret
     );
   }
 }

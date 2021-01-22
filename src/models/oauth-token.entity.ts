@@ -11,37 +11,37 @@ import { OAuthAuthorizationCode } from './oauth-authorization-code.entity';
 import moment from 'moment';
 
 @Entity()
-@Unique('UQ_access_token', ['access_token'])
+@Unique('UQ_access_token', ['accessToken'])
 export class OAuthToken {
   // Attributes
 
   @PrimaryColumn()
-  refresh_token: string;
+  refreshToken: string;
 
   @Column()
-  access_token: string;
+  accessToken: string;
 
   @Column({ type: 'timestamp with time zone' })
-  issued_at: Date;
+  issuedAt: Date;
 
   @Column({ type: 'timestamp with time zone' })
-  expires_at: Date;
+  expiresAt: Date;
 
   @Column({ array: true, type: 'character varying' })
   scopes: string[];
 
   @OneToOne(() => OAuthAuthorizationCode, (client) => client.token)
-  generation_code?: OAuthAuthorizationCode;
+  generationCode?: OAuthAuthorizationCode;
 
-  @ManyToOne(() => ResourceOwner, (owner) => owner.authorization_codes, {
+  @ManyToOne(() => ResourceOwner, (owner) => owner.authorizationCodes, {
     nullable: false,
   })
-  resource_owner: ResourceOwner;
+  resourceOwner: ResourceOwner;
 
   // Methods
 
   isExpired() {
-    return moment().isAfter(this.expires_at);
+    return moment().isAfter(this.expiresAt);
   }
 
   hasScope(scope: string) {

@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OAuthClient } from './models/oauth-client.entity';
+import { OAuthClient } from '../models/oauth-client.entity';
 import { Repository } from 'typeorm';
 import { RegisterClientRequest } from './args/register.args';
 import { uid } from 'rand-token';
-import { ResourceOwner } from './models/resource-owner.entity';
-import { OAuthAuthorizationCode } from './models/oauth-authorization-code.entity';
-import { OAuthToken } from './models/oauth-token.entity';
+import { ResourceOwner } from '../models/resource-owner.entity';
+import { OAuthAuthorizationCode } from '../models/oauth-authorization-code.entity';
+import { OAuthToken } from '../models/oauth-token.entity';
 import * as jwt from 'jsonwebtoken';
 import moment from 'moment';
 import { ConfigService } from '@nestjs/config';
@@ -25,9 +25,8 @@ export class OAuthService {
     @InjectRepository(ResourceOwner)
     private resourceOwnersRepository: Repository<ResourceOwner>,
     private config: ConfigService,
-    private passwordService: PasswordService
-  ) {
-  }
+    private passwordService: PasswordService,
+  ) {}
 
   /**
    * Retrieves a client from it's ID.
@@ -54,10 +53,10 @@ export class OAuthService {
   ): Promise<OAuthAuthorizationCode> {
     const authCode = new OAuthAuthorizationCode();
     authCode.code = uid(32);
-    authCode.issued_at = new Date();
+    authCode.issuedAt = new Date();
     authCode.client = client;
     authCode.scopes = scopes;
-    authCode.resource_owner = resourceOwner;
+    authCode.resourceOwner = resourceOwner;
 
     return this.oauthAuthorizationCodeRepository.save(authCode);
   }
@@ -73,16 +72,16 @@ export class OAuthService {
     args: RegisterClientRequest,
   ): Promise<{ client_id: string; client_secret: string }> {
     const client = new OAuthClient();
-    client.redirect_uri = args.redirect_uri;
-    client.client_name = args.client_name;
-    client.client_type = args.client_type;
-    client.client_secret = uid(32);
+    client.redirectURI = args.redirect_uri;
+    client.clientName = args.client_name;
+    client.clientType = args.client_type;
+    client.clientSecret = uid(32);
 
     try {
       await this.oauthClientsRepository.save(client);
       return {
-        client_id: client.client_id,
-        client_secret: client.client_secret,
+        client_id: client.clientID,
+        client_secret: client.clientSecret,
       };
     } catch (e) {
       if (e.constraint && e.constraint === 'UQ_client_name') {
@@ -130,8 +129,7 @@ export class OAuthService {
     if (authCode.hasAlreadyBeenUsed()) {
       try {
         await this.oauthTokenRepository.delete(authCode.token);
-      } catch (_) {
-      }
+      } catch (_) {}
       throw new BadRequestException('Invalid code');
     }
 
@@ -145,15 +143,15 @@ export class OAuthService {
 
     const token = new OAuthToken();
     this.generateAccessToken(token);
-    token.refresh_token = uid(32);
-    token.generation_code = authCode;
-    token.resource_owner = authCode.resource_owner;
+    token.refreshToken = uid(32);
+    token.generationCode = authCode;
+    token.resourceOwner = authCode.resourceOwner;
     token.scopes = authCode.scopes;
 
     await this.oauthTokenRepository.save(token);
     return {
-      access_token: token.access_token,
-      refresh_token: token.refresh_token,
+      access_token: token.accessToken,
+      refresh_token: token.refreshToken,
     };
   }
 
@@ -179,18 +177,25 @@ export class OAuthService {
     if (resource_owner.password === null) {
       throw new BadRequestException('Bad credentials');
     }
-    const validPassword = await this.passwordService.checkPassword(params.password, resource_owner.password);
+    const validPassword = await this.passwordService.checkPassword(
+      params.password,
+      resource_owner.password,
+    );
     if (!validPassword) {
       throw new BadRequestException('Bad credentials');
     }
 
     const token = new OAuthToken();
     this.generateAccessToken(token);
-    token.refresh_token = uid(32);
+    token.refreshToken = uid(32);
     token.scopes = ['all'];
-    token.resource_owner = resource_owner;
+    token.resourceOwner = resource_owner;
 
-    return await this.oauthTokenRepository.save(token);
+    await this.oauthTokenRepository.save(token);
+    return {
+      access_token: token.accessToken,
+      refresh_token: token.refreshToken,
+    };
   }
 
   /**
@@ -209,12 +214,12 @@ export class OAuthService {
     if (token === undefined) {
       throw new BadRequestException('Invalid token');
     }
-    const oldTokenContent = jwt.decode(token.access_token, { json: true });
+    const oldTokenContent = jwt.decode(token.accessToken, { json: true });
     this.generateAccessToken(token, oldTokenContent);
     await this.oauthTokenRepository.save(token);
     return {
-      access_token: token.access_token,
-      refresh_token: token.refresh_token,
+      access_token: token.accessToken,
+      refresh_token: token.refreshToken,
     };
   }
 
@@ -226,15 +231,15 @@ export class OAuthService {
    * @private
    */
   private generateAccessToken(token: OAuthToken, content: object = {}) {
-    token.issued_at = new Date();
-    token.expires_at = moment(token.issued_at).add(2, 'hours').toDate();
+    token.issuedAt = new Date();
+    token.expiresAt = moment(token.issuedAt).add(2, 'hours').toDate();
     let jwtContent = {
       ...content,
-      iat: (token.issued_at.getTime() / 1000) | 0,
-      exp: (token.expires_at.getTime() / 1000) | 0,
+      iat: (token.issuedAt.getTime() / 1000) | 0,
+      exp: (token.expiresAt.getTime() / 1000) | 0,
     };
 
-    token.access_token = jwt.sign(jwtContent, this.config.get(JWT_SECRET), {
+    token.accessToken = jwt.sign(jwtContent, this.config.get(JWT_SECRET), {
       algorithm: 'HS256',
     });
   }

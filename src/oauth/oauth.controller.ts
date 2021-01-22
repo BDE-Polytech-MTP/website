@@ -1,13 +1,13 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
   Get,
-  Query,
-  Post,
   Header,
-  Body,
+  Post,
+  Query,
   Render,
   Res,
-  BadRequestException,
 } from '@nestjs/common';
 import { AuthorizationRequestArgs } from './args/authorization.args';
 import { AccessTokenRequest } from './args/access-token.args';
@@ -40,7 +40,7 @@ export class OauthController {
 
       return {
         ...params,
-        client_name: client.client_name,
+        client_name: client.clientName,
         scopes,
       };
     } catch {
@@ -66,7 +66,7 @@ export class OauthController {
 
     if (granted !== 'true') {
       return res.view('cancelled-oauth-authorize.hbs', {
-        client_name: client.client_name,
+        client_name: client.clientName,
       });
     }
 
@@ -78,7 +78,7 @@ export class OauthController {
       undefined,
     );
 
-    let redirectionUrl = client.redirect_uri;
+    let redirectionUrl = client.redirectURI;
     redirectionUrl += `?code=${encodeURI(authorizationCode.code)}`;
     if (params.state) {
       redirectionUrl += `&state=${encodeURI(params.state)}`;
@@ -98,7 +98,9 @@ export class OauthController {
       return await this.oauthService.generateTokenFromCredentials(params);
     }
     if (params.grant_type === 'refresh_token') {
-      return await this.oauthService.generateTokenFromRefreshToken(params.refresh_token);
+      return await this.oauthService.generateTokenFromRefreshToken(
+        params.refresh_token,
+      );
     }
     throw new BadRequestException('Invalid grant_type');
   }

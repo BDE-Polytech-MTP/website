@@ -8,29 +8,29 @@ import {
 import { OAuthAuthorizationCode } from './oauth-authorization-code.entity';
 
 @Entity()
-@Unique('UQ_client_name', ['client_name'])
+@Unique('UQ_client_name', ['clientName'])
 export class OAuthClient {
   @PrimaryGeneratedColumn('uuid')
-  client_id: string;
+  clientID: string;
 
   @Column({
     type: 'enum',
     enum: ['public', 'confidential'],
   })
-  client_type: string;
+  clientType: string;
 
   @Column()
-  client_name: string;
+  clientName: string;
 
   @Column()
-  redirect_uri: string;
+  redirectURI: string;
 
   @Column()
-  client_secret: string;
+  clientSecret: string;
 
   @Column({ default: false })
   revoked: boolean;
 
   @OneToMany(() => OAuthAuthorizationCode, (code) => code.client)
-  authorization_codes: OAuthAuthorizationCode[];
+  authorizationCodes: OAuthAuthorizationCode[];
 }
