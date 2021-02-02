@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate as validateDatabase, DATABASE_URL } from './config/database';
 import { validate as validateSecurity } from './config/security';
 import { PasswordModule } from './password/password.module';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PasswordModule } from './password/password.module';
       validate: (config) => validateSecurity(validateDatabase(config)),
     }),
     PasswordModule,
+    AccountModule,
   ],
   controllers: [],
   providers: [AppService],

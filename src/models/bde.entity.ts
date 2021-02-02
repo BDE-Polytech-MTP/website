@@ -12,7 +12,7 @@ import { Specialty } from './specialty.entity';
 @Unique('UQ_name', ['name'])
 export class BDE {
   @PrimaryGeneratedColumn('uuid')
-  bdeID: string;
+  id: string;
 
   @Column()
   name: string;

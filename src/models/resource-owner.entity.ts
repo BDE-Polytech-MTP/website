@@ -10,9 +10,12 @@ import { OAuthAuthorizationCode } from './oauth-authorization-code.entity';
 import { OAuthToken } from './oauth-token.entity';
 import { BDE } from './bde.entity';
 import { Booking } from './booking.entity';
+import { Role } from '../account/roles';
+
+export const UQ_EMAIL_CONSTRAINT = 'UQ_email';
 
 @Entity()
-@Unique('UQ_email', ['email'])
+@Unique(UQ_EMAIL_CONSTRAINT, ['email'])
 export class ResourceOwner {
   // Columns
 
@@ -34,14 +37,17 @@ export class ResourceOwner {
   @Column({ nullable: true })
   resetPasswordToken: string;
 
-  @Column({ default: false })
-  isAdmin: boolean;
+  @Column({ type: 'character varying', array: true })
+  roles: string[];
 
   @Column({ nullable: true }) // If membership_date is null, the resource owner isn't a member
   membershipDate: Date;
 
   @Column({ nullable: true })
   sponsorResourceOwnerId: string;
+
+  @Column()
+  bdeId: string;
 
   // Relationships
 
@@ -72,4 +78,9 @@ export class ResourceOwner {
   get isExtern() {
     return this.sponsorResourceOwnerId;
   }
+
+  hasRole(role: Role) {
+    return this.roles.includes(role);
+  }
+
 }
