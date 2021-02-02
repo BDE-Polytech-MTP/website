@@ -8,7 +8,7 @@ import { ResourceOwner } from '../models/resource-owner.entity';
 import { OAuthAuthorizationCode } from '../models/oauth-authorization-code.entity';
 import { OAuthToken } from '../models/oauth-token.entity';
 import * as jwt from 'jsonwebtoken';
-import moment from 'moment';
+import * as moment from 'moment';
 import { ConfigService } from '@nestjs/config';
 import { JWT_SECRET } from '../config/security';
 import { PasswordService } from '../password/password.service';
@@ -230,10 +230,13 @@ export class OAuthService {
    * @param content The content of the JWT to generate
    * @private
    */
-  private generateAccessToken(token: OAuthToken, content: object = {}) {
+  private generateAccessToken(
+    token: OAuthToken,
+    content: Record<string, unknown> = {},
+  ) {
     token.issuedAt = new Date();
     token.expiresAt = moment(token.issuedAt).add(2, 'hours').toDate();
-    let jwtContent = {
+    const jwtContent = {
       ...content,
       iat: (token.issuedAt.getTime() / 1000) | 0,
       exp: (token.expiresAt.getTime() / 1000) | 0,

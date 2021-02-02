@@ -8,6 +8,8 @@ import {
 } from 'typeorm';
 import { OAuthAuthorizationCode } from './oauth-authorization-code.entity';
 import { OAuthToken } from './oauth-token.entity';
+import { BDE } from './bde.entity';
+import { Booking } from './booking.entity';
 
 @Entity()
 @Unique('UQ_email', ['email'])
@@ -43,6 +45,9 @@ export class ResourceOwner {
 
   // Relationships
 
+  @ManyToOne(() => BDE, (bde) => bde.resourceOwners)
+  bde: BDE;
+
   @ManyToOne(() => ResourceOwner, (user) => user.sponsored)
   sponsor: ResourceOwner;
 
@@ -54,6 +59,9 @@ export class ResourceOwner {
 
   @OneToMany(() => OAuthToken, (token) => token.resourceOwner)
   tokens: OAuthToken[];
+
+  @OneToMany(() => Booking, (booking) => booking.resourceOwner)
+  bookings: Booking[];
 
   // Methods
 

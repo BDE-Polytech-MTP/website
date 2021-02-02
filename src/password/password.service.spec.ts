@@ -15,4 +15,11 @@ describe('PasswordService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  it('should hash a password and validate it correctly', async () => {
+    const hashedPassword = await service.hashPassword('the password');
+    expect(
+      await service.checkPassword('the password', hashedPassword),
+    ).toBeTruthy();
+  });
 });

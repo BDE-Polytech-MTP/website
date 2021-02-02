@@ -47,5 +47,4 @@ export class OAuthToken {
   hasScope(scope: string) {
     return this.scopes.includes(scope) || this.scopes.includes('all');
   }
-
 }
