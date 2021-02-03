@@ -72,14 +72,14 @@ export class OAuthService {
   async registerOAuthClient(
     args: RegisterClientRequest,
   ): Promise<{ client_id: string; client_secret: string }> {
-    const client = new OAuthClient();
+    let client = new OAuthClient();
     client.redirectURI = args.redirect_uri;
     client.clientName = args.client_name;
     client.clientType = args.client_type;
     client.clientSecret = uid(32);
 
     try {
-      await this.oauthClientsRepository.save(client);
+      client = await this.oauthClientsRepository.save(client);
       return {
         client_id: client.clientID,
         client_secret: client.clientSecret,
