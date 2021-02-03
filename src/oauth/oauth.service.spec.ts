@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { OAuthToken } from '../models/oauth-token.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
-import { mockRepository } from '../testing/utils';
+import { mockRepository } from '../../test/mock/utils';
 
 describe('OauthService', () => {
   let service: OAuthService;
@@ -218,7 +218,7 @@ describe('OauthService', () => {
 
   describe('decodeBasicAuth', () => {
     it('should decode correctly the basic token', () => {
-      const buffer = Buffer.from('username:password')
+      const buffer = Buffer.from('username:password');
       const token = buffer.toString('base64');
       const result = service.decodeBasicAuth(`Basic ${token}`);
 

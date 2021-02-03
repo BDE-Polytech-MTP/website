@@ -6,7 +6,7 @@ import {
   UQ_EMAIL_CONSTRAINT,
 } from '../models/resource-owner.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { mockRepository } from '../testing/utils';
+import { mockRepository } from '../../test/mock/utils';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Role } from './roles';
 import { PasswordService } from '../password/password.service';
@@ -213,12 +213,16 @@ describe('AccountService', () => {
     });
 
     it('should resolve with resource owner if email and password are correct', () => {
-      jest.spyOn(resourceOwnerRepository, 'findOne').mockImplementation(async () => {
-        const user = new ResourceOwner();
-        user.password = 'password';
-        return user;
-      });
-      jest.spyOn(passwordService, 'checkPassword').mockImplementation(async () => true);
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => {
+          const user = new ResourceOwner();
+          user.password = 'password';
+          return user;
+        });
+      jest
+        .spyOn(passwordService, 'checkPassword')
+        .mockImplementation(async () => true);
 
       const result = service.authenticate('florent.hug@domain.tld', 'password');
 

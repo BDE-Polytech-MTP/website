@@ -5,6 +5,6 @@ import { PasswordModule } from '../password/password.module';
 
 @Module({
   providers: [AccountService],
-  imports: [typeOrmModule(), PasswordModule]
+  imports: [typeOrmModule(), PasswordModule],
 })
 export class AccountModule {}

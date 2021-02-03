@@ -101,9 +101,10 @@ export class OauthController {
       }
 
       try {
-        return await this.oauthService.generateTokenFromAuthorizationCode(
-          { ...params, ...this.oauthService.decodeBasicAuth(authorization)},
-        );
+        return await this.oauthService.generateTokenFromAuthorizationCode({
+          ...params,
+          ...this.oauthService.decodeBasicAuth(authorization),
+        });
       } catch {
         return new BadRequestException();
       }

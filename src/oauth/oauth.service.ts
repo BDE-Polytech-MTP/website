@@ -26,8 +26,7 @@ export class OAuthService {
     private resourceOwnersRepository: Repository<ResourceOwner>,
     private config: ConfigService,
     private passwordService: PasswordService,
-  ) {
-  }
+  ) {}
 
   /**
    * Retrieves a client from it's ID.
@@ -130,8 +129,7 @@ export class OAuthService {
     if (authCode.hasAlreadyBeenUsed()) {
       try {
         await this.oauthTokenRepository.delete(authCode.token);
-      } catch (_) {
-      }
+      } catch (_) {}
       throw new BadRequestException('Invalid code');
     }
 

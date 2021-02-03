@@ -88,5 +88,4 @@ export class ResourceOwner {
   hasRole(role: Role) {
     return this.roles.includes(role);
   }
-
 }
