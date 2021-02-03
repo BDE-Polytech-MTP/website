@@ -9,10 +9,12 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../testing/utils';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Role } from './roles';
+import { PasswordService } from '../password/password.service';
 
 describe('AccountService', () => {
   let service: AccountService;
   let resourceOwnerRepository: Repository<ResourceOwner>;
+  let passwordService: PasswordService;
 
   const userData = {
     email: 'name@domain.tld',
@@ -23,11 +25,16 @@ describe('AccountService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AccountService, mockRepository(ResourceOwner)],
+      providers: [
+        AccountService,
+        mockRepository(ResourceOwner),
+        PasswordService,
+      ],
     }).compile();
 
     service = module.get<AccountService>(AccountService);
     resourceOwnerRepository = module.get(getRepositoryToken(ResourceOwner));
+    passwordService = module.get(PasswordService);
   });
 
   it('should be defined', () => {
@@ -164,6 +171,58 @@ describe('AccountService', () => {
       updater.bdeId = 'bde-uuid';
 
       await service.updateAccount('user-id', {}, updater);
+    });
+  });
+
+  describe('authenticate user', () => {
+    it('should throw BadRequestException if no user with the given email can be found', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => undefined);
+
+      const result = service.authenticate('bad-email', 'password');
+
+      return expect(result).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if password do not match', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => new ResourceOwner());
+      jest
+        .spyOn(passwordService, 'checkPassword')
+        .mockImplementation(async () => false);
+
+      const result = service.authenticate('florent.hug@domain.tld', 'password');
+
+      return expect(result).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if password of retrieved user is null', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => {
+          const user = new ResourceOwner();
+          user.password = null;
+          return user;
+        });
+
+      const result = service.authenticate('florent.hug@domain.tld', 'password');
+
+      return expect(result).rejects.toThrow(BadRequestException);
+    });
+
+    it('should resolve with resource owner if email and password are correct', () => {
+      jest.spyOn(resourceOwnerRepository, 'findOne').mockImplementation(async () => {
+        const user = new ResourceOwner();
+        user.password = 'password';
+        return user;
+      });
+      jest.spyOn(passwordService, 'checkPassword').mockImplementation(async () => true);
+
+      const result = service.authenticate('florent.hug@domain.tld', 'password');
+
+      return expect(result).resolves.toBeTruthy();
     });
   });
 });
