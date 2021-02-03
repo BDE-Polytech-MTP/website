@@ -11,6 +11,7 @@ import { OAuthToken } from './oauth-token.entity';
 import { BDE } from './bde.entity';
 import { Booking } from './booking.entity';
 import { Role } from '../account/roles';
+import { Specialty } from './specialty.entity';
 
 export const UQ_EMAIL_CONSTRAINT = 'UQ_email';
 
@@ -68,6 +69,11 @@ export class ResourceOwner {
 
   @OneToMany(() => Booking, (booking) => booking.resourceOwner)
   bookings: Booking[];
+
+  @ManyToOne(() => Specialty, {
+    nullable: true,
+  })
+  specialty: Specialty;
 
   // Methods
 
