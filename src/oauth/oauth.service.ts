@@ -26,7 +26,8 @@ export class OAuthService {
     private resourceOwnersRepository: Repository<ResourceOwner>,
     private config: ConfigService,
     private passwordService: PasswordService,
-  ) {}
+  ) {
+  }
 
   /**
    * Retrieves a client from it's ID.
@@ -129,7 +130,8 @@ export class OAuthService {
     if (authCode.hasAlreadyBeenUsed()) {
       try {
         await this.oauthTokenRepository.delete(authCode.token);
-      } catch (_) {}
+      } catch (_) {
+      }
       throw new BadRequestException('Invalid code');
     }
 
@@ -221,6 +223,33 @@ export class OAuthService {
       access_token: token.accessToken,
       refresh_token: token.refreshToken,
     };
+  }
+
+  decodeBasicAuth(auth: string) {
+    const invalidClient = () =>
+      new BadRequestException({
+        error: 'invalid_client',
+      });
+
+    if (!auth || !auth.startsWith('Basic ')) {
+      throw invalidClient();
+    }
+
+    auth = auth.substr('Basic '.length);
+
+    let decodedAuth: string;
+    try {
+      decodedAuth = Buffer.from(auth, 'base64').toString();
+    } catch {
+      throw invalidClient();
+    }
+
+    const [username, password] = decodedAuth.split(':');
+    if (!username || !password) {
+      throw invalidClient();
+    }
+
+    return { client_id: username, client_secret: password };
   }
 
   /**

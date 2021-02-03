@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Header,
+  Headers,
   Post,
   Query,
   Render,
@@ -90,9 +91,22 @@ export class OauthController {
   @Header('Cache-Control', 'no-store')
   @Header('Pragma', 'no-cache')
   @Post('token')
-  async getAccessToken(@Body() params: AccessTokenRequest) {
+  async getAccessToken(
+    @Body() params: AccessTokenRequest,
+    @Headers('authorization') authorization: string,
+  ) {
     if (params.grant_type === 'authorization_code') {
-      return await this.oauthService.generateTokenFromAuthorizationCode(params);
+      if (!authorization) {
+        throw new BadRequestException();
+      }
+
+      try {
+        return await this.oauthService.generateTokenFromAuthorizationCode(
+          { ...params, ...this.oauthService.decodeBasicAuth(authorization)},
+        );
+      } catch {
+        return new BadRequestException();
+      }
     }
     if (params.grant_type === 'password') {
       return await this.oauthService.generateTokenFromCredentials(params);

@@ -21,22 +21,6 @@ export class AccessTokenRequest {
   @IsString()
   code: string;
 
-  @ApiPropertyOptional({
-    description:
-      'The ID of the client performing the request. **Required** if grant_type is "authorization_code"',
-  })
-  @ValidateIf((v) => v.grant_type === 'authorization_code')
-  @IsString()
-  client_id: string;
-
-  @ApiPropertyOptional({
-    description:
-      'The secret of the client that is used to authenticate to the authorization server. **Required** if grant_type is "authorization_code"',
-  })
-  @ValidateIf((v) => v.grant_type === 'authorization_code')
-  @IsString()
-  client_secret: string;
-
   // Password
 
   @ApiPropertyOptional({

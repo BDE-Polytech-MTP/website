@@ -215,4 +215,15 @@ describe('OauthService', () => {
       done();
     });
   });
+
+  describe('decodeBasicAuth', () => {
+    it('should decode correctly the basic token', () => {
+      const buffer = Buffer.from('username:password')
+      const token = buffer.toString('base64');
+      const result = service.decodeBasicAuth(`Basic ${token}`);
+
+      expect(result.client_id).toBe('username');
+      expect(result.client_secret).toBe('password');
+    });
+  });
 });
