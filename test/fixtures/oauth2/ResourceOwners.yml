@@ -1,0 +1,10 @@
+entity: ResourceOwner
+items:
+    admin:
+      firstname: Florent
+      lastname: Hugouvieux
+      email: florent.hugouvieux@protonmail.com
+      roles:
+        - WRITE_USERS
+        - READ_USERS
+      bde: '@montpellier'

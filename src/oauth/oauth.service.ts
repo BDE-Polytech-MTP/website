@@ -80,7 +80,7 @@ export class OAuthService {
     try {
       client = await this.oauthClientsRepository.save(client);
       return {
-        client_id: client.clientID,
+        client_id: client.id,
         client_secret: client.clientSecret,
       };
     } catch (e) {

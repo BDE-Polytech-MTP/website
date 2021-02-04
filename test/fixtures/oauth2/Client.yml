@@ -1,0 +1,8 @@
+entity: OAuthClient
+items:
+  bde-client:
+    clientID: ae6e043e-91bd-4a2d-9abd-1217736ca40b
+    clientType: confidential
+    clientName: BDE-Montpellier
+    clientSecret: wgq3Nn8tiKT1YLS0SOoFsAmiln5CX58Z
+    redirectURI: http://localhost:5000/callback

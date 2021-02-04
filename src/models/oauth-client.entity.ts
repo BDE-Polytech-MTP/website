@@ -11,7 +11,7 @@ import { OAuthAuthorizationCode } from './oauth-authorization-code.entity';
 @Unique('UQ_client_name', ['clientName'])
 export class OAuthClient {
   @PrimaryGeneratedColumn('uuid')
-  clientID: string;
+  id: string;
 
   @Column({
     type: 'enum',
