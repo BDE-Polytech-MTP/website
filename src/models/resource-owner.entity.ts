@@ -21,7 +21,7 @@ export class ResourceOwner {
   // Columns
 
   @PrimaryGeneratedColumn('uuid')
-  resourceOwnerId: string;
+  id: string;
 
   @Column()
   email: string;
