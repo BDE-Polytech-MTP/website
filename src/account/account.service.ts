@@ -96,31 +96,4 @@ export class AccountService {
       throw e;
     }
   }
-
-  async authenticate(email: string, password: string) {
-    const user = await this.resourceOwnerRepository.findOne({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      throw new BadRequestException('Invalid credentials');
-    }
-
-    if (!user.password) {
-      throw new BadRequestException('Invalid credentials');
-    }
-
-    const isPasswordValid = await this.passwordService.checkPassword(
-      password,
-      user.password,
-    );
-
-    if (!isPasswordValid) {
-      throw new BadRequestException('Invalid credentials');
-    }
-
-    return user;
-  }
 }
