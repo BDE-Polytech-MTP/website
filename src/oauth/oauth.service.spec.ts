@@ -10,6 +10,7 @@ import { OAuthToken } from '../models/oauth-token.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
 import { mockRepository } from '../../test/mock/utils';
+import * as moment from 'moment';
 
 describe('OauthService', () => {
   let service: OAuthService;
@@ -224,6 +225,55 @@ describe('OauthService', () => {
 
       expect(result.client_id).toBe('username');
       expect(result.client_secret).toBe('password');
+    });
+  });
+
+  describe('resourceOwnerFromBearerToken', () => {
+    it('should return null if bearer token is not known', () => {
+      jest
+        .spyOn(oauthTokenRepository, 'findOne')
+        .mockImplementation(async () => undefined);
+
+      const result = service.resourceOwnerFromBearerToken(
+        'Bearer 54df5sdq45qsfd54sd',
+      );
+
+      return expect(result).resolves.toBeNull();
+    });
+
+    it('should return null if bearer token is expired', () => {
+      jest
+        .spyOn(oauthTokenRepository, 'findOne')
+        .mockImplementation(async () => {
+          const token = new OAuthToken();
+          token.expiresAt = moment().subtract(1, 'd').toDate();
+          token.resourceOwner = new ResourceOwner();
+          return token;
+        });
+
+      const result = service.resourceOwnerFromBearerToken('Bearer fdsdffdsfsd');
+
+      return expect(result).resolves.toBeNull();
+    });
+
+    it('should return scopes and resource owner if token is valid', async () => {
+      jest
+        .spyOn(oauthTokenRepository, 'findOne')
+        .mockImplementation(async () => {
+          const token = new OAuthToken();
+          token.expiresAt = moment().add(1, 'd').toDate();
+          token.resourceOwner = new ResourceOwner();
+          token.scopes = ['all'];
+          return token;
+        });
+
+      const result = await service.resourceOwnerFromBearerToken(
+        'Bearer sfd645fds',
+      );
+
+      expect(result).not.toBeNull();
+      expect(result).toHaveProperty('resourceOwner');
+      expect(result).toHaveProperty('scopes', ['all']);
     });
   });
 });

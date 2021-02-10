@@ -223,31 +223,63 @@ export class OAuthService {
     };
   }
 
-  decodeBasicAuth(auth: string) {
+  decodeBasicAuth(authorizationHeader: string) {
     const invalidClient = () =>
       new BadRequestException({
         error: 'invalid_client',
       });
 
-    if (!auth || !auth.startsWith('Basic ')) {
+    if (!authorizationHeader || !authorizationHeader.startsWith('Basic ')) {
       throw invalidClient();
     }
 
-    auth = auth.substr('Basic '.length);
+    const token = authorizationHeader.substr('Basic '.length);
 
-    let decodedAuth: string;
+    let decodedToken: string;
     try {
-      decodedAuth = Buffer.from(auth, 'base64').toString();
+      decodedToken = Buffer.from(token, 'base64').toString();
     } catch {
       throw invalidClient();
     }
 
-    const [username, password] = decodedAuth.split(':');
+    const [username, password] = decodedToken.split(':');
     if (!username || !password) {
       throw invalidClient();
     }
 
     return { client_id: username, client_secret: password };
+  }
+
+  /**
+   *
+   */
+  async resourceOwnerFromBearerToken(
+    authorizationHeader: string,
+  ): Promise<{
+    resourceOwner: ResourceOwner;
+    scopes: string[];
+  }> {
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
+      return null;
+    }
+
+    const accessToken = authorizationHeader.substring('Bearer '.length);
+
+    const token = await this.oauthTokenRepository.findOne(accessToken, {
+      relations: ['resource_owner'],
+    });
+    if (!token) {
+      return null;
+    }
+
+    if (token.expiresAt < new Date()) {
+      return null;
+    }
+
+    return {
+      resourceOwner: token.resourceOwner,
+      scopes: token.scopes,
+    };
   }
 
   /**

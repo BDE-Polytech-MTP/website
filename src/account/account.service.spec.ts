@@ -14,7 +14,6 @@ import { PasswordService } from '../password/password.service';
 describe('AccountService', () => {
   let service: AccountService;
   let resourceOwnerRepository: Repository<ResourceOwner>;
-  let passwordService: PasswordService;
 
   const userData = {
     email: 'name@domain.tld',
@@ -34,7 +33,6 @@ describe('AccountService', () => {
 
     service = module.get<AccountService>(AccountService);
     resourceOwnerRepository = module.get(getRepositoryToken(ResourceOwner));
-    passwordService = module.get(PasswordService);
   });
 
   it('should be defined', () => {

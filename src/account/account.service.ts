@@ -10,14 +10,12 @@ import {
 } from '../models/resource-owner.entity';
 import { Repository } from 'typeorm';
 import { Role } from './roles';
-import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(ResourceOwner)
     private resourceOwnerRepository: Repository<ResourceOwner>,
-    private passwordService: PasswordService,
   ) {}
 
   async createAccount(

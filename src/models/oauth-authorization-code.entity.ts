@@ -50,8 +50,7 @@ export class OAuthAuthorizationCode {
 
   hasBeenGeneratedBy(clientId: string, clientSecret: string) {
     return (
-      clientId === this.client.id &&
-      clientSecret === this.client.clientSecret
+      clientId === this.client.id && clientSecret === this.client.clientSecret
     );
   }
 }

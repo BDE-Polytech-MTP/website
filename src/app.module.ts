@@ -1,13 +1,20 @@
-import { Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { OauthModule } from './oauth/oauth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { validate as validateDatabase, DATABASE_URL } from './config/database';
+import { DATABASE_URL, validate as validateDatabase } from './config/database';
 import { validate as validateSecurity } from './config/security';
 import { PasswordModule } from './password/password.module';
 import { AccountModule } from './account/account.module';
+import { OAuthMiddleware } from './oauth/middleware/oauth.middleware';
+import { OauthController } from './oauth/oauth.controller';
 
 @Module({
   imports: [
@@ -32,4 +39,14 @@ import { AccountModule } from './account/account.module';
   controllers: [],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer
+      .apply(OAuthMiddleware)
+      .exclude(
+        { path: 'register', method: RequestMethod.POST },
+        { path: 'token', method: RequestMethod.POST },
+      )
+      .forRoutes(OauthController);
+  }
+}
