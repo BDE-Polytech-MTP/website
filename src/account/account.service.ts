@@ -1,7 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
-  Injectable,
+  Injectable, InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -25,6 +25,7 @@ export class AccountService {
       lastname: string;
       bde: string;
       membershipDate?: Date;
+      roles?: Role[]
     },
     creator?: ResourceOwner,
   ): Promise<ResourceOwner> {
@@ -46,6 +47,7 @@ export class AccountService {
     user.firstname = userData.firstname;
     user.lastname = userData.lastname;
     user.membershipDate = userData.membershipDate;
+    user.roles = userData.roles;
 
     try {
       return await this.resourceOwnerRepository.save(user);
@@ -53,6 +55,7 @@ export class AccountService {
       if (e.constraint && e.constraint === UQ_EMAIL_CONSTRAINT) {
         throw new BadRequestException('An user with this email already exists');
       }
+      throw new InternalServerErrorException('Unable to create account');
     }
   }
 

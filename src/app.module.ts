@@ -15,6 +15,7 @@ import { PasswordModule } from './password/password.module';
 import { AccountModule } from './account/account.module';
 import { OAuthMiddleware } from './oauth/middleware/oauth.middleware';
 import { OauthController } from './oauth/oauth.controller';
+import { BdeModule } from './bde/bde.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { OauthController } from './oauth/oauth.controller';
     }),
     PasswordModule,
     AccountModule,
+    BdeModule,
   ],
   controllers: [],
   providers: [AppService],

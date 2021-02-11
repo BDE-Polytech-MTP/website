@@ -10,5 +10,6 @@ import { OAuthMiddleware } from './middleware/oauth.middleware';
   imports: [typeOrmModule(), ConfigModule, PasswordModule],
   controllers: [OauthController],
   providers: [OAuthService, OAuthMiddleware],
+  exports: [OAuthService, OAuthMiddleware]
 })
 export class OauthModule {}
