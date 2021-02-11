@@ -73,9 +73,10 @@ export class MailingService {
       'mail-templates',
       templateName,
     );
-    return new Promise((reject, resolve) => {
+    return new Promise((resolve, reject) => {
       readFile(templatePath, { encoding: 'utf-8' }, (err, data) => {
         if (err) {
+          this.logger.log(err);
           reject(`Unable to load mail template ${templatePath}`);
         } else {
           resolve(data);

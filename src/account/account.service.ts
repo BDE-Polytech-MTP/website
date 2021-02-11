@@ -11,12 +11,14 @@ import {
 } from '../models/resource-owner.entity';
 import { Repository } from 'typeorm';
 import { Role } from './roles';
+import { MailingService } from '../mailing/mailing.service';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(ResourceOwner)
     private resourceOwnerRepository: Repository<ResourceOwner>,
+    private mailingService: MailingService
   ) {}
 
   async createAccount(
@@ -42,7 +44,7 @@ export class AccountService {
       );
     }
 
-    const user = new ResourceOwner();
+    let user = new ResourceOwner();
     user.email = userData.email;
     user.bdeId = userData.bde;
     user.firstname = userData.firstname;
@@ -51,13 +53,18 @@ export class AccountService {
     user.roles = userData.roles;
 
     try {
-      return await this.resourceOwnerRepository.save(user);
+      user = await this.resourceOwnerRepository.save(user);
     } catch (e) {
       if (e.constraint && e.constraint === UQ_EMAIL_CONSTRAINT) {
         throw new BadRequestException('An user with this email already exists');
       }
       throw new InternalServerErrorException('Unable to create account');
     }
+
+    try {
+      await this.mailingService.sendRegistrationMail(user);
+    } catch {}
+    return user;
   }
 
   async updateAccount(

@@ -12,10 +12,12 @@ import * as nodemailer from 'nodemailer';
 
 @Module({})
 export class MailingModule {
+
   static forRoot(): DynamicModule {
     return {
       module: MailingModule,
       imports: [ConfigModule],
+      exports: [MailingService],
       providers: [
         {
           provide: 'MAILING_TRANSPORT',

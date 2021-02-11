@@ -10,6 +10,7 @@ import { mockRepository } from '../../test/mock/utils';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Role } from './roles';
 import { PasswordService } from '../password/password.service';
+import { MailingService } from '../mailing/mailing.service';
 
 describe('AccountService', () => {
   let service: AccountService;
@@ -28,6 +29,14 @@ describe('AccountService', () => {
         AccountService,
         mockRepository(ResourceOwner),
         PasswordService,
+        {
+          provide: MailingService,
+          useValue: {
+            sendRegistrationMail: () => {
+              return undefined;
+            },
+          },
+        },
       ],
     }).compile();
 
