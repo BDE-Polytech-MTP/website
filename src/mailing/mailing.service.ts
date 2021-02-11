@@ -11,6 +11,7 @@ import { ResourceOwner } from '../models/resource-owner.entity';
 import { join } from 'path';
 import { readFile } from 'fs';
 import { MAILING_RECIPIENT } from '../config/mailing';
+import { SITE_URL } from '../config/general';
 
 // TODO: Handle all the mailing part using a Bull Queue (see: https://docs.nestjs.com/techniques/queues)
 
@@ -28,7 +29,13 @@ export class MailingService {
   }
 
   async sendRegistrationMail(user: ResourceOwner) {
-    const renderedTemplate = await this.renderTemplate('registration.html', {});
+    const renderedTemplate = await this.renderTemplate('registration.html', {
+      registerURL: `${this.config.get(SITE_URL)}/account/reset-password?token=${
+        user.resetPasswordToken
+      }`,
+      frontURL: this.config.get(SITE_URL),
+    });
+
     const info = await this.transport.sendMail({
       from: `"BDE Polytech" <${this.config.get(MAILING_RECIPIENT)}`,
       to: user.email,

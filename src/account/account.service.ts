@@ -12,13 +12,15 @@ import {
 import { Repository } from 'typeorm';
 import { Role } from './roles';
 import { MailingService } from '../mailing/mailing.service';
+import { uid } from 'rand-token';
+import * as moment from 'moment';
 
 @Injectable()
 export class AccountService {
   constructor(
     @InjectRepository(ResourceOwner)
     private resourceOwnerRepository: Repository<ResourceOwner>,
-    private mailingService: MailingService
+    private mailingService: MailingService,
   ) {}
 
   async createAccount(
@@ -51,6 +53,7 @@ export class AccountService {
     user.lastname = userData.lastname;
     user.membershipDate = userData.membershipDate;
     user.roles = userData.roles;
+    this.updateResetPasswordToken(user);
 
     try {
       user = await this.resourceOwnerRepository.save(user);
@@ -104,5 +107,10 @@ export class AccountService {
       }
       throw e;
     }
+  }
+
+  private updateResetPasswordToken(user: ResourceOwner) {
+    user.resetPasswordToken = uid(32);
+    user.resetPasswordTokenExpiration = moment().add('24', 'h').toDate();
   }
 }

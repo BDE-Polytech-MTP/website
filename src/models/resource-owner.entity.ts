@@ -14,9 +14,11 @@ import { Role } from '../account/roles';
 import { Specialty } from './specialty.entity';
 
 export const UQ_EMAIL_CONSTRAINT = 'UQ_email';
+export const UQ_RESET_PASSWORD_TOKEN_CONSTRAINT = 'UQ_RESET_PASSWORD_TOKEN';
 
 @Entity()
 @Unique(UQ_EMAIL_CONSTRAINT, ['email'])
+@Unique(UQ_RESET_PASSWORD_TOKEN_CONSTRAINT, ['resetPasswordToken'])
 export class ResourceOwner {
   // Columns
 
@@ -37,6 +39,9 @@ export class ResourceOwner {
 
   @Column({ nullable: true })
   resetPasswordToken: string;
+
+  @Column({ nullable: true })
+  resetPasswordTokenExpiration: Date;
 
   @Column({ type: 'character varying', array: true })
   roles: string[];
