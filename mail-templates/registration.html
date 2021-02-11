@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <meta name='x-apple-disable-message-reformatting'>
+
+  <link href='https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap' rel='stylesheet' type='text/css'>
+</head>
+
+<style>
+
+    @import url("https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap");
+
+    a {
+        color: inherit;
+    }
+
+    body {
+        font-family: 'Raleway', 'Courier New', Courier, monospace;
+        background-color: #e7e7e7;
+        max-width: 450px;
+    }
+
+    header {
+        display: flex;
+        flex-direction: row;
+    }
+
+    header h3 {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        font-weight: 200;
+        font-size: 2em;
+    }
+
+    main .register-button {
+        display: inline-block;
+        box-sizing: border-box;
+        background-color: #003865;
+        border-radius: 4px;
+        padding: 10px 20px;
+        text-align: center;
+        color: white;
+        text-decoration: none;
+        width: 100%;
+        font-size: 22px;
+    }
+
+    hr {
+        color: rgba(187, 187, 187, 0.435);
+        margin: 20px 0;
+    }
+
+    footer {
+        color: #95a5a6;
+        font-size: 0.7em;
+        line-height: 160%;
+    }
+</style>
+
+<body>
+
+<header>
+  <img src='{{frontURL}}/assets/icons/icon-192x192.png' width='147px' alt='Logo du site' />
+  <h3>BDE Polytech</h3>
+</header>
+
+<main>
+
+  <p>
+    Bonjour,<br>
+    <br>
+    Vous êtes invité à vous inscrire sur le site du BDE de Polytech afin de pouvoir accéder à la réservation des
+    événements organisés par celui-ci.
+  </p>
+
+  <p>
+    L'inscription ne vous prendra pas beaucoup de temps : seulement quelques clics.
+  </p>
+
+  <hr>
+
+  <a href='{{registerURL}}' class='register-button'>S'inscrire</a>
+
+</main>
+
+<hr>
+
+<footer>
+  <p>
+    Site du BDE: <a href='{{frontURL}}' target='_blank' rel='noopener noreferer'>{{frontURL}}</a><br>
+    Contact: <a href='mailto:florent.hugouvieux@protonmail.com'>"Florent Hugouvieux"
+    &lt;fhugouvieux@gmail.com&gt;</a><br>
+    Nous utilisons vos données seulement pour le bon fonctionnement du site. Nous ne revondons pas vos données. Si vous
+    voulez supprimer votre compte, utilisez le contact ci-dessus.
+  </p>
+</footer>
+
+</body>
+
+</html>

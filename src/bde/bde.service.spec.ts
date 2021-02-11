@@ -72,7 +72,7 @@ describe('BdeService', () => {
         },
       });
 
-      return expect(result).resolves.toHaveProperty('bdeId');
+      return expect(result).resolves.toBeTruthy();
     });
   });
 });

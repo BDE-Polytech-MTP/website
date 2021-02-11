@@ -12,11 +12,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DATABASE_URL, validate as validateDatabase } from './config/database';
 import { validate as validateSecurity } from './config/security';
+import { validate as validateMailing } from './config/mailing';
 import { PasswordModule } from './password/password.module';
 import { AccountModule } from './account/account.module';
 import { OAuthMiddleware } from './oauth/middleware/oauth.middleware';
 import { OauthController } from './oauth/oauth.controller';
 import { BdeModule } from './bde/bde.module';
+import { MailingModule } from './mailing/mailing.module';
 
 @Module({
   imports: [
@@ -33,7 +35,10 @@ import { BdeModule } from './bde/bde.module';
     }),
     ConfigModule.forRoot({
       cache: true,
-      validate: (config) => validateSecurity(validateDatabase(config)),
+      validate: (config) =>
+        validateSecurity(config) &&
+        validateDatabase(config) &&
+        validateMailing(config),
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -43,6 +48,7 @@ import { BdeModule } from './bde/bde.module';
     PasswordModule,
     AccountModule,
     BdeModule,
+    MailingModule.forRoot(),
   ],
   controllers: [],
   providers: [AppService],
