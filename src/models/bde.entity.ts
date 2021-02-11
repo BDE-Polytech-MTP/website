@@ -25,7 +25,7 @@ export class BDE {
   resourceOwners: ResourceOwner[];
 
   @OneToMany(() => Specialty, (specialty) => specialty.bde, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   })
   specialties: Specialty[];
 }

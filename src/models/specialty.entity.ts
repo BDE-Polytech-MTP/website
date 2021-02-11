@@ -13,7 +13,7 @@ export class Specialty {
   fullName: string;
 
   @PrimaryColumn()
-  bdeID: string;
+  bdeId: string;
 
   // Relationships
 

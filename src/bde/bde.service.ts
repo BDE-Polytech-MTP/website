@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BDE, UQ_NAME_CONSTRAINT } from '../models/bde.entity';
@@ -12,6 +13,8 @@ import { Role } from '../account/roles';
 
 @Injectable()
 export class BdeService {
+  private readonly logger = new Logger(BdeService.name);
+
   constructor(
     @InjectRepository(BDE) private bdeRepository: Repository<BDE>,
     @InjectRepository(Specialty)
@@ -44,24 +47,28 @@ export class BdeService {
           'A BDE with the given name already exists',
         );
       }
+      this.logger.error(e);
       throw new InternalServerErrorException('Unable to create this BDE');
     }
 
     // Specialties creation
     const specialties = params.specialties.map((spe) => {
       const specialty = new Specialty();
-      specialty.bde = bde;
+      specialty.bdeId = bde.id;
       specialty.name = spe.name;
       specialty.fullName = spe.fullName;
+      specialty.year = spe.year;
       return specialty;
     });
 
     try {
       await this.specialtyRepository.save(specialties);
-    } catch {
+      bde.specialties = specialties;
+    } catch (e) {
       try {
         await this.bdeRepository.delete(bde.id);
       } catch {}
+      this.logger.error(e);
       throw new InternalServerErrorException();
     }
 
@@ -81,8 +88,12 @@ export class BdeService {
       throw e;
     }
 
-    return {
-      bdeId: bde.id
-    }
+    return bde;
+  }
+
+  getAllBDE() {
+    return this.bdeRepository.find({
+      relations: ['specialties'],
+    });
   }
 }

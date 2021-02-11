@@ -7,6 +7,7 @@ import {
 import { AppService } from './app.service';
 import { OauthModule } from './oauth/oauth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DATABASE_URL, validate as validateDatabase } from './config/database';
@@ -33,6 +34,11 @@ import { BdeModule } from './bde/bde.module';
     ConfigModule.forRoot({
       cache: true,
       validate: (config) => validateSecurity(validateDatabase(config)),
+    }),
+    GraphQLModule.forRoot({
+      autoSchemaFile: true,
+      playground: true,
+      debug: true,
     }),
     PasswordModule,
     AccountModule,

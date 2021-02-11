@@ -1,7 +1,8 @@
 import {
   BadRequestException,
   ForbiddenException,
-  Injectable, InternalServerErrorException,
+  Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -25,7 +26,7 @@ export class AccountService {
       lastname: string;
       bde: string;
       membershipDate?: Date;
-      roles?: Role[]
+      roles?: Role[];
     },
     creator?: ResourceOwner,
   ): Promise<ResourceOwner> {
