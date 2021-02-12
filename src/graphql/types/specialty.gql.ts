@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Specialty } from '../../models/specialty.entity';
 
 @ObjectType('specialty')
 export class SpecialtyType {
@@ -10,4 +11,13 @@ export class SpecialtyType {
 
   @Field(() => Int)
   year: number;
+
+  static fromSpecialtyModel(spe: Specialty) {
+    const ret = new SpecialtyType();
+    ret.year = spe.year;
+    ret.longName = spe.fullName;
+    ret.shortName = spe.name;
+    return ret;
+  }
+
 }

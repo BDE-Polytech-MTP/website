@@ -96,4 +96,14 @@ export class BdeService {
       relations: ['specialties'],
     });
   }
+
+  async getBdeById(id: string) {
+    const bde = await this.bdeRepository.findOne(id, {
+      relations: ['specialties'],
+    });
+    if (!bde) {
+      throw new BadRequestException('Unable to find a BDE with the given ID');
+    }
+    return bde;
+  }
 }

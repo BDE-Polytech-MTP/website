@@ -2,7 +2,6 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { BdeType } from '../graphql/types/bde.gql';
 import { BdeService } from './bde.service';
 import { BdeAdminDto, SpecialtyDto } from './dto/create-bde.dto';
-import { SpecialtyType } from '../graphql/types/specialty.gql';
 
 @Resolver(() => BdeType)
 export class BdeResolver {
@@ -11,34 +10,23 @@ export class BdeResolver {
   @Query(() => [BdeType], { name: 'allBDE' })
   async getBDEs() {
     const bdes = await this.bdeService.getAllBDE();
-    return bdes.map((bde) => {
-      const bdeType = new BdeType();
-      bdeType.id = bde.id;
-      bdeType.name = bde.name;
-      return bdeType;
-    });
+    return bdes.map((bde) => BdeType.fromBdeModel(bde));
+  }
+
+  @Query(() => BdeType, { name: 'bde' })
+  async getBDE(@Args('id') id: string) {
+    const bde = await this.bdeService.getBdeById(id);
+    return BdeType.fromBdeModel(bde);
   }
 
   @Mutation(() => BdeType, { name: 'newBDE' })
   async createBDE(
-    @Args('name') name: string,
-    @Args('specialties', {
-      defaultValue: [
-        {
-          shortName: 'PEIP',
-          longName: 'Cycle préparatoire',
-          year: 1,
-        },
-        {
-          shortName: 'PEIP',
-          longName: 'Cycle préparatoire',
-          year: 2,
-        },
-      ],
-      type: () => [SpecialtyDto],
-    })
+    @Args('name')
+    name: string,
+    @Args('specialties', { type: () => [SpecialtyDto] })
     specialties: SpecialtyDto[],
-    @Args('admin') admin: BdeAdminDto,
+    @Args('admin')
+    admin: BdeAdminDto,
   ) {
     const result = await this.bdeService.createBDE({
       name,
@@ -51,16 +39,6 @@ export class BdeResolver {
         })),
       ),
     });
-    const bde = new BdeType();
-    bde.id = result.id;
-    bde.name = result.name;
-    bde.specialties = result.specialties.map((spe) => {
-      const s = new SpecialtyType();
-      s.longName = spe.fullName;
-      s.shortName = spe.name;
-      s.year = spe.year;
-      return s;
-    });
-    return bde;
+    return BdeType.fromBdeModel(result);
   }
 }

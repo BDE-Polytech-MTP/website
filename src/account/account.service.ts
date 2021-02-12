@@ -2,7 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
-  InternalServerErrorException,
+  InternalServerErrorException, NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
@@ -107,6 +107,16 @@ export class AccountService {
       }
       throw e;
     }
+  }
+
+  async getAccountById(id: string) {
+    const resourceOwner = await this.resourceOwnerRepository.findOne(id, {
+      relations: ['specialty']
+    });
+    if (!resourceOwner) {
+      throw new NotFoundException('No account with the given id can be found.')
+    }
+    return resourceOwner;
   }
 
   private updateResetPasswordToken(user: ResourceOwner) {
