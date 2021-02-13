@@ -14,7 +14,7 @@ import { BdeModule } from '../bde/bde.module';
     PasswordModule,
     MailingModule.forRoot(),
     ConfigModule,
-    forwardRef(() => BdeModule)
+    forwardRef(() => BdeModule),
   ],
   exports: [AccountService],
 })

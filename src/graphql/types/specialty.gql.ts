@@ -1,5 +1,6 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, OmitType } from '@nestjs/graphql';
 import { Specialty } from '../../models/specialty.entity';
+import { ResourceOwner } from '../../models/resource-owner.entity';
 
 @ObjectType('specialty')
 export class SpecialtyType {
@@ -19,5 +20,16 @@ export class SpecialtyType {
     ret.shortName = spe.name;
     return ret;
   }
+}
 
+@ObjectType('userSpecialty')
+export class UserSpecialtyType extends OmitType(SpecialtyType, [
+  'longName',
+] as const) {
+  static fromResourceOwner(ro: ResourceOwner) {
+    const spe = new UserSpecialtyType();
+    spe.shortName = ro.specialtyName;
+    spe.year = ro.specialtyYear;
+    return spe;
+  }
 }

@@ -52,6 +52,14 @@ export class ResourceOwner {
   @Column({ nullable: true })
   sponsorResourceOwnerId: string;
 
+  // Foreign keys
+
+  @Column({ nullable: true })
+  specialtyName: string;
+
+  @Column({ type: 'integer', nullable: true })
+  specialtyYear: number;
+
   @Column()
   bdeId: string;
 

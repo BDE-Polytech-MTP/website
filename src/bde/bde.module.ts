@@ -7,6 +7,6 @@ import { BdeResolver } from './bde.resolver';
 @Module({
   imports: [typeOrmModule(), forwardRef(() => AccountModule)],
   providers: [BdeService, BdeResolver],
-  exports: [BdeService, BdeResolver]
+  exports: [BdeService, BdeResolver],
 })
 export class BdeModule {}

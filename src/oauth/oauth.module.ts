@@ -5,11 +5,12 @@ import { ConfigModule } from '@nestjs/config';
 import { PasswordModule } from '../password/password.module';
 import { typeOrmModule } from '../models';
 import { OAuthMiddleware } from './middleware/oauth.middleware';
+import { AuthGuard } from './guard/auth.guard';
 
 @Module({
   imports: [typeOrmModule(), ConfigModule, PasswordModule],
   controllers: [OauthController],
-  providers: [OAuthService, OAuthMiddleware],
-  exports: [OAuthService, OAuthMiddleware]
+  providers: [OAuthService, OAuthMiddleware, AuthGuard],
+  exports: [OAuthService, OAuthMiddleware, AuthGuard],
 })
 export class OauthModule {}

@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BdeType } from './bde.gql';
-import { SpecialtyType } from './specialty.gql';
+import { UserSpecialtyType } from './specialty.gql';
 import { ResourceOwner } from '../../models/resource-owner.entity';
 
 @ObjectType()
@@ -20,8 +20,8 @@ export class UserType {
   @Field(() => BdeType)
   bde: BdeType;
 
-  @Field(() => SpecialtyType, { nullable: true })
-  specialty: SpecialtyType;
+  @Field(() => UserSpecialtyType, { nullable: true })
+  specialty: UserSpecialtyType;
 
   static fromResourceOwnerModel(ro: ResourceOwner) {
     const user = new UserType();
@@ -29,9 +29,9 @@ export class UserType {
     user.lastname = ro.lastname;
     user.email = ro.email;
     user.bdeId = ro.bdeId;
-    user.specialty = ro.specialty
-      ? SpecialtyType.fromSpecialtyModel(ro.specialty)
-      : null;
+    if (ro.specialtyName) {
+      user.specialty = UserSpecialtyType.fromResourceOwner(ro);
+    }
     return user;
   }
 }
