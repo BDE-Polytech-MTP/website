@@ -1,0 +1,3 @@
+[submodule "website-front"]
+	path = website-front
+	url = git@github.com:BDE-Polytech-MTP/website-front.git

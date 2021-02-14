@@ -11,6 +11,8 @@ import { PasswordModule } from './password/password.module';
 import { AccountModule } from './account/account.module';
 import { BdeModule } from './bde/bde.module';
 import { MailingModule } from './mailing/mailing.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -42,6 +44,10 @@ import { MailingModule } from './mailing/mailing.module';
     AccountModule,
     BdeModule,
     MailingModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'website-front', 'dist'),
+      exclude: ['/api*', '/graphql', '/oauth*', '/doc*'],
+    }),
   ],
   controllers: [],
 })
