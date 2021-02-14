@@ -1,5 +1,4 @@
 export const JWT_SECRET = 'JWT_SECRET';
-export const PASSWORD_RESET_SECRET = 'PASSWORD_RESET_SECRET';
 
 export function validate(config: Record<string, unknown>) {
   if (config[JWT_SECRET] === undefined) {
