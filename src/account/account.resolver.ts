@@ -3,8 +3,10 @@ import { UserType } from '../graphql/types/user.gql';
 import { AccountService } from './account.service';
 import { BdeResolver } from '../bde/bde.resolver';
 import { BdeType } from '../graphql/types/bde.gql';
-import { Request, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../oauth/guard/auth.guard';
+import { User } from '../oauth/decorator/user.decorator';
+import { ResourceOwner } from '../models/resource-owner.entity';
 
 @Resolver(() => UserType)
 export class AccountResolver {
@@ -15,8 +17,8 @@ export class AccountResolver {
 
   @Query(() => UserType, { name: 'me' })
   @UseGuards(AuthGuard)
-  async me(@Request() request: any) {
-    return UserType.fromResourceOwnerModel(request.user);
+  async me(@User() user: ResourceOwner) {
+    return UserType.fromResourceOwnerModel(user);
   }
 
   @Query(() => UserType, { name: 'user' })

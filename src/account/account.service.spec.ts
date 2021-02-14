@@ -11,6 +11,7 @@ import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Role } from './roles';
 import { PasswordService } from '../password/password.service';
 import { MailingService } from '../mailing/mailing.service';
+import * as moment from 'moment';
 
 describe('AccountService', () => {
   let service: AccountService;
@@ -28,7 +29,13 @@ describe('AccountService', () => {
       providers: [
         AccountService,
         mockRepository(ResourceOwner),
-        PasswordService,
+        {
+          provide: PasswordService,
+          useValue: {
+            checkPassword: async (plain, hashed) => plain === hashed,
+            hashPassword: async (plain) => plain,
+          },
+        },
         {
           provide: MailingService,
           useValue: {
@@ -178,6 +185,83 @@ describe('AccountService', () => {
       updater.bdeId = 'bde-uuid';
 
       await service.updateAccount('user-id', {}, updater);
+    });
+  });
+
+  describe('check password reset token', () => {
+    it('should return "false" when providing unknown token', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => undefined);
+
+      const result = service.checkResetPasswordToken('the-token');
+
+      return expect(result).resolves.toHaveProperty('valid', false);
+    });
+
+    it('should return "true" when providing valid unexpired token', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => {
+          const ro = new ResourceOwner();
+          ro.resetPasswordTokenExpiration = moment().add(1, 'd').toDate();
+          return ro;
+        });
+
+      const result = service.checkResetPasswordToken('the-token');
+
+      return expect(result).resolves.toHaveProperty('valid', true);
+    });
+
+    it('should return "false" when providing expired token', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async () => {
+          const ro = new ResourceOwner();
+          ro.resetPasswordTokenExpiration = moment().subtract(1, 'd').toDate();
+          return ro;
+        });
+
+      const result = service.checkResetPasswordToken('the-token');
+
+      return expect(result).resolves.toHaveProperty('valid', false);
+    });
+  });
+
+  describe('reset password', () => {
+    it('should throw BadRequestException if token is not valid', () => {
+      jest
+        .spyOn(service, 'checkResetPasswordToken')
+        .mockImplementation(async () => ({
+          valid: false,
+        }));
+
+      const result = service.resetPassword('token', 'password');
+
+      return expect(result).rejects.toThrow(BadRequestException);
+    });
+
+    it('should reset password and delete token if token is valid', async () => {
+      jest
+        .spyOn(service, 'checkResetPasswordToken')
+        .mockImplementation(async () => ({
+          valid: true,
+        }));
+      const theSpy = jest.spyOn(resourceOwnerRepository, 'update');
+
+      const result = await service.resetPassword('token', 'password');
+
+      expect(result).toHaveProperty('ok', true);
+      expect(theSpy).toHaveBeenCalledWith(
+        {
+          resetPasswordToken: 'token',
+        },
+        {
+          resetPasswordToken: null,
+          resetPasswordTokenExpiration: null,
+          password: 'password',
+        },
+      );
     });
   });
 });

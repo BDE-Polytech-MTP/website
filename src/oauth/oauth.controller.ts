@@ -9,6 +9,7 @@ import {
   Query,
   Render,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthorizationRequestArgs } from './args/authorization.args';
 import { AccessTokenRequest } from './args/access-token.args';
@@ -18,6 +19,7 @@ import { SuccessRegisterResponse } from './response/register.response';
 import { FastifyReply } from 'fastify';
 import 'point-of-view';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { AuthGuard } from './guard/auth.guard';
 
 @Controller('oauth')
 export class OauthController {
@@ -27,6 +29,7 @@ export class OauthController {
   @Header('Cache-Control', 'no-store')
   @Header('Pragma', 'no-cache')
   @Get('authorize')
+  @UseGuards(AuthGuard)
   @Render('oauth-authorize.hbs')
   async getAuthorization(@Query() params: AuthorizationRequestArgs) {
     try {
@@ -53,6 +56,7 @@ export class OauthController {
   @Header('x-frame-options', 'deny')
   @Header('Cache-Control', 'no-store')
   @Header('Pragma', 'no-cache')
+  @UseGuards(AuthGuard)
   @Post('authorize')
   async postAuthorizationGrant(
     @Query() params: AuthorizationRequestArgs,
@@ -76,7 +80,7 @@ export class OauthController {
     const authorizationCode = await this.oauthService.generateOAuthAuthorizationCode(
       client,
       [...scopes.keys()],
-      undefined,
+      undefined, // TODO: Use req.user
     );
 
     let redirectionUrl = client.redirectURI;

@@ -266,7 +266,7 @@ export class OAuthService {
     const accessToken = authorizationHeader.substring('Bearer '.length);
 
     const token = await this.oauthTokenRepository.findOne(accessToken, {
-      relations: ['resource_owner'],
+      relations: ['resourceOwner'],
     });
     if (!token) {
       return null;

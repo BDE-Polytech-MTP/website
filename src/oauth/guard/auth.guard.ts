@@ -1,9 +1,16 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { OAuthService } from '../oauth.service';
+import { IdentifiedGuard } from './identified.guard';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    return request.user;
+export class AuthGuard extends IdentifiedGuard {
+  constructor(oauthService: OAuthService) {
+    super(oauthService);
+  }
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    await super.canActivate(context);
+    const req = AuthGuard.getRequestFromContext(context);
+    return (req as any).user;
   }
 }

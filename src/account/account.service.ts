@@ -15,6 +15,7 @@ import { Role } from './roles';
 import { MailingService } from '../mailing/mailing.service';
 import { uid } from 'rand-token';
 import * as moment from 'moment';
+import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AccountService {
@@ -22,6 +23,7 @@ export class AccountService {
     @InjectRepository(ResourceOwner)
     private resourceOwnerRepository: Repository<ResourceOwner>,
     private mailingService: MailingService,
+    private passwordService: PasswordService,
   ) {}
 
   async createAccount(
@@ -118,6 +120,40 @@ export class AccountService {
       throw new NotFoundException('No account with the given id can be found.');
     }
     return resourceOwner;
+  }
+
+  async checkResetPasswordToken(token: string) {
+    const resourceOwner = await this.resourceOwnerRepository.findOne({
+      where: {
+        resetPasswordToken: token,
+      },
+    });
+    if (
+      !resourceOwner ||
+      new Date() > resourceOwner.resetPasswordTokenExpiration
+    ) {
+      return { valid: false };
+    }
+    return { valid: true };
+  }
+
+  async resetPassword(token: string, password: string) {
+    const valid = (await this.checkResetPasswordToken(token)).valid;
+    if (!valid) {
+      throw new BadRequestException('The given token is invalid');
+    }
+    const newPassword = await this.passwordService.hashPassword(password);
+    await this.resourceOwnerRepository.update(
+      {
+        resetPasswordToken: token,
+      },
+      {
+        resetPasswordToken: null,
+        resetPasswordTokenExpiration: null,
+        password: newPassword,
+      },
+    );
+    return { ok: true };
   }
 
   private updateResetPasswordToken(user: ResourceOwner) {

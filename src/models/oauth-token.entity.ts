@@ -16,10 +16,10 @@ export class OAuthToken {
   // Attributes
 
   @PrimaryColumn()
-  refreshToken: string;
+  accessToken: string;
 
   @Column()
-  accessToken: string;
+  refreshToken: string;
 
   @Column({ type: 'timestamp with time zone' })
   issuedAt: Date;
