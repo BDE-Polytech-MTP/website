@@ -28,6 +28,10 @@ export class MailingService {
     this.transport = transport;
   }
 
+  private getFromRecipient() {
+    return `"BDE Polytech" <${this.config.get(MAILING_RECIPIENT)}>`;
+  }
+
   async sendRegistrationMail(user: ResourceOwner) {
     const renderedTemplate = await this.renderTemplate('registration.html', {
       registerURL: `${this.config.get(SITE_URL)}/account/reset-password?token=${
@@ -37,7 +41,7 @@ export class MailingService {
     });
 
     const info = await this.transport.sendMail({
-      from: `"BDE Polytech" <${this.config.get(MAILING_RECIPIENT)}`,
+      from: this.getFromRecipient(),
       to: user.email,
       subject: 'Inscription sur le site web du BDE',
       text: "Inscrivez-vous sur le site du BDE à l'URL suivante: ",
