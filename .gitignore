@@ -35,3 +35,6 @@ lerna-debug.log*
 
 # dotEnv file
 .env
+
+# Postgres data
+_postgres-data/
