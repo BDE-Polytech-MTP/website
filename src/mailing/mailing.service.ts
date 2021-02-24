@@ -34,7 +34,7 @@ export class MailingService {
 
   async sendRegistrationMail(user: ResourceOwner) {
     const renderedTemplate = await this.renderTemplate('registration.html', {
-      registerURL: `${this.config.get(SITE_URL)}/account/reset-password?token=${
+      registerURL: `${this.config.get(SITE_URL)}/compte/reset-password?token=${
         user.resetPasswordToken
       }`,
       frontURL: this.config.get(SITE_URL),
