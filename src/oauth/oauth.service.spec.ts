@@ -164,10 +164,34 @@ describe('OauthService', () => {
       return expect(result).rejects.toThrow(BadRequestException);
     });
 
+    it('should returns lowercase email when calling findOne', () => {
+      jest
+        .spyOn(resourceOwnerRepository, 'findOne')
+        .mockImplementation(async (cond: any) => {
+          if (cond.where[0].email === 'lowercase') {
+            const ro = new ResourceOwner();
+            ro.password = 'password';
+            return ro;
+          };
+          return undefined;
+        });
+      jest
+        .spyOn(passwordService, 'checkPassword')
+        .mockImplementation(async () => true);
+
+      const result = service.generateTokenFromCredentials({ username: 'LowerCase', password: 'password '});
+
+      return expect(result).resolves.toBeTruthy();
+    })
+
     it('should throw BadRequestException when user password do not match', () => {
       jest
         .spyOn(resourceOwnerRepository, 'findOne')
-        .mockImplementation(async () => new ResourceOwner());
+        .mockImplementation(async () => {
+          const ro = new ResourceOwner();
+          ro.password = 'other password';
+          return ro;
+        });
       jest
         .spyOn(passwordService, 'checkPassword')
         .mockImplementation(async () => false);

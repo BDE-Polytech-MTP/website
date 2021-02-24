@@ -169,7 +169,7 @@ export class OAuthService {
     password: string;
   }): Promise<{ access_token: string; refresh_token: string }> {
     const resource_owner = await this.resourceOwnersRepository.findOne({
-      where: [{ email: params.username }],
+      where: [{ email: params.username.toLowerCase() }],
     });
     if (resource_owner === undefined) {
       throw new BadRequestException('Bad credentials');

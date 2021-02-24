@@ -50,7 +50,7 @@ export class AccountService {
     }
 
     let user = new ResourceOwner();
-    user.email = userData.email;
+    user.email = userData.email.toLowerCase();
     user.bdeId = userData.bde;
     user.firstname = userData.firstname;
     user.lastname = userData.lastname;

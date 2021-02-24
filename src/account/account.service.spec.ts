@@ -70,6 +70,18 @@ describe('AccountService', () => {
       return expect(result).rejects.toThrow(BadRequestException);
     });
 
+    it('should pass a resource owner with a lowercased email when saving it', async () => {
+      expect.assertions(1);
+      jest
+        .spyOn(resourceOwnerRepository, 'save')
+        .mockImplementation(async (model) => {
+          expect(model).toHaveProperty('email', 'lowercased')
+          return model as ResourceOwner;
+        });
+
+      await service.createAccount({ firstname: 'Florent', lastname: 'Hugouvieux', email: 'LowerCased', bde: 'bde-uuid' });
+    });
+
     it('should throw ForbiddenException if user creating the user do not have WRITE_USER role', () => {
       const creator = new ResourceOwner();
       creator.roles = [];
