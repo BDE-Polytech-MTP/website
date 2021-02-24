@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build && cd website-front && npm run generate",
+    "build": "nest build && cd website-front && cross-env BACKEND_URL=/ npm run generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -74,6 +74,7 @@
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
+    "cross-env": "^7.0.3",
     "env-cmd": "^10.1.0",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^6.15.0",
