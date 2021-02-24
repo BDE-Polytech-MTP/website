@@ -1,11 +1,16 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { IsString, MinLength } from 'class-validator';
+import { IsEmail, IsString, MinLength } from 'class-validator';
 
 class ResetPasswordRequest {
   @IsString()
   @MinLength(10)
   password: string;
+}
+
+class SendResetEmailRequest {
+  @IsEmail()
+  email: string;
 }
 
 @Controller('api/account')
@@ -24,4 +29,10 @@ export class AccountController {
   ) {
     return this.accountService.resetPassword(token, body.password);
   }
+
+  @Post('password-reset/send')
+  async askForReset(@Body() body: SendResetEmailRequest) {
+    return this.accountService.sendPasswordResetEmail(body.email);
+  }
+
 }

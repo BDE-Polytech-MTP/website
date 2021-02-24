@@ -7,7 +7,7 @@ import {
 } from '../models/resource-owner.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { mockRepository } from '../../test/mock/utils';
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, InternalServerErrorException } from '@nestjs/common';
 import { Role } from './roles';
 import { PasswordService } from '../password/password.service';
 import { MailingService } from '../mailing/mailing.service';
@@ -16,6 +16,14 @@ import * as moment from 'moment';
 describe('AccountService', () => {
   let service: AccountService;
   let resourceOwnerRepository: Repository<ResourceOwner>;
+  let mailingService = {
+    sendRegistrationMail: () => {
+      return undefined;
+    },
+    sendResetPasswordMail: () => {
+      return undefined;
+    }
+  }
 
   const userData = {
     email: 'name@domain.tld',
@@ -38,11 +46,7 @@ describe('AccountService', () => {
         },
         {
           provide: MailingService,
-          useValue: {
-            sendRegistrationMail: () => {
-              return undefined;
-            },
-          },
+          useValue: mailingService,
         },
       ],
     }).compile();
@@ -281,4 +285,39 @@ describe('AccountService', () => {
       );
     });
   });
+
+  describe('send password reset email', () => {
+
+    it('should return { ok: true } if email is invalid', () => {
+      jest.spyOn(resourceOwnerRepository, 'findOne').mockImplementation(async () => undefined);
+
+      const result = service.sendPasswordResetEmail('name@domain.tld');
+
+      return expect(result).resolves.toHaveProperty('ok', true);
+    });
+
+    it('should create reset token and return { ok: true } if email is valid', async () => {
+      const ro = new ResourceOwner();
+      jest.spyOn(resourceOwnerRepository, 'findOne').mockImplementation(async () => ro);
+      const mailSpy = jest.spyOn(mailingService, 'sendResetPasswordMail');
+
+      const result = await service.sendPasswordResetEmail('name@domain.tld');
+
+      expect(mailSpy).toHaveBeenCalled();
+      expect(result).toHaveProperty('ok', true);
+      expect(ro.resetPasswordToken).toBeTruthy();
+      expect(ro.resetPasswordTokenExpiration).toBeTruthy();
+    });
+
+    it('shoud throw InternalErrorException if he was not able to send password', () => {
+      jest.spyOn(resourceOwnerRepository, 'findOne').mockImplementation(async () => new ResourceOwner());
+      jest.spyOn(mailingService, 'sendResetPasswordMail').mockImplementation(async () => { throw new Error(); });
+
+      const result = service.sendPasswordResetEmail('name@doamin.tld');
+
+      return expect(result).rejects.toThrow(InternalServerErrorException);
+    });
+
+  });
+
 });

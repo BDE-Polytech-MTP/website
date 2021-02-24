@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -19,6 +20,9 @@ import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AccountService {
+
+  private readonly logger = new Logger(AccountService.name);
+
   constructor(
     @InjectRepository(ResourceOwner)
     private resourceOwnerRepository: Repository<ResourceOwner>,
@@ -160,4 +164,26 @@ export class AccountService {
     user.resetPasswordToken = uid(32);
     user.resetPasswordTokenExpiration = moment().add('24', 'h').toDate();
   }
+
+  async sendPasswordResetEmail(email: string) {
+    const ro = await this.resourceOwnerRepository.findOne({
+      where: {
+        email
+      }
+    });
+
+    if (ro) {
+      this.updateResetPasswordToken(ro);
+      try {
+        await this.resourceOwnerRepository.update(ro.id, { resetPasswordToken: ro.resetPasswordToken, resetPasswordTokenExpiration: ro.resetPasswordTokenExpiration });
+        await this.mailingService.sendResetPasswordMail(ro);
+      } catch (e) {
+        this.logger.error(e);
+        throw new InternalServerErrorException({ ok: false });
+      }
+    }
+
+    return { ok: true }
+  }
+
 }

@@ -53,6 +53,10 @@ export class MailingService {
     }
   }
 
+  async sendResetPasswordMail(user: ResourceOwner) {
+    // TODO: Fill
+  }
+
   private async renderTemplate(
     templateName: string,
     values: Record<string, string>,
