@@ -37,8 +37,8 @@ import { join } from 'path';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      playground: true,
-      debug: true,
+      playground: process.env.NODE_END === 'production' ? false : true,
+      debug: process.env.NODE_END === 'production' ? false : true,
     }),
     PasswordModule,
     AccountModule,
