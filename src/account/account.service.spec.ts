@@ -75,11 +75,16 @@ describe('AccountService', () => {
       jest
         .spyOn(resourceOwnerRepository, 'save')
         .mockImplementation(async (model) => {
-          expect(model).toHaveProperty('email', 'lowercased')
+          expect(model).toHaveProperty('email', 'lowercased');
           return model as ResourceOwner;
         });
 
-      await service.createAccount({ firstname: 'Florent', lastname: 'Hugouvieux', email: 'LowerCased', bde: 'bde-uuid' });
+      await service.createAccount({
+        firstname: 'Florent',
+        lastname: 'Hugouvieux',
+        email: 'LowerCased',
+        bde: 'bde-uuid',
+      });
     });
 
     it('should throw ForbiddenException if user creating the user do not have WRITE_USER role', () => {

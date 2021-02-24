@@ -5,8 +5,7 @@ import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class IdentifiedGuard implements CanActivate {
-  constructor(private oauthService: OAuthService) {
-  }
+  constructor(private oauthService: OAuthService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = IdentifiedGuard.getRequestFromContext(context);

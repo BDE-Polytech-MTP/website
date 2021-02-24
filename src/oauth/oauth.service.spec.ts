@@ -172,17 +172,20 @@ describe('OauthService', () => {
             const ro = new ResourceOwner();
             ro.password = 'password';
             return ro;
-          };
+          }
           return undefined;
         });
       jest
         .spyOn(passwordService, 'checkPassword')
         .mockImplementation(async () => true);
 
-      const result = service.generateTokenFromCredentials({ username: 'LowerCase', password: 'password '});
+      const result = service.generateTokenFromCredentials({
+        username: 'LowerCase',
+        password: 'password ',
+      });
 
       return expect(result).resolves.toBeTruthy();
-    })
+    });
 
     it('should throw BadRequestException when user password do not match', () => {
       jest

@@ -51,5 +51,4 @@ import { join } from 'path';
   ],
   controllers: [],
 })
-export class AppModule {
-}
+export class AppModule {}
