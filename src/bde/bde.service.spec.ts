@@ -5,7 +5,7 @@ import { BDE, UQ_NAME_CONSTRAINT } from '../models/bde.entity';
 import { Specialty } from '../models/specialty.entity';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { AccountService } from '../account/account.service';
 
 describe('BdeService', () => {
@@ -73,6 +73,26 @@ describe('BdeService', () => {
       });
 
       return expect(result).resolves.toBeTruthy();
+    });
+
+    it('should reject with ForbiddenException if a BDE already exist', () => {
+      jest.spyOn(bdeRepository, 'save').mockImplementation(async (bde) => {
+        bde.id = 'bde-id';
+        return bde as BDE;
+      });
+      jest.spyOn(bdeRepository, 'count').mockImplementation(async () => 1);
+
+      const result = service.createBDE({
+        name: 'already-taken',
+        specialties: [],
+        admin: {
+          firstname: 'Florent',
+          lastname: 'Hugouvieux',
+          email: 'florent.hugouvieux@domain.tld',
+        },
+      });
+
+      return expect(result).rejects.toThrow(ForbiddenException);
     });
   });
 });

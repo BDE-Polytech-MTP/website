@@ -17,6 +17,9 @@ export function mockRepository(model: EntityClassOrSchema) {
       update: () => {
         return undefined;
       },
+      count: () => {
+        return 0;
+      }
     },
   };
 }

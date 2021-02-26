@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -35,6 +36,11 @@ export class BdeService {
       email: string;
     };
   }) {
+    const bdeCount = await this.bdeRepository.count();
+    if (bdeCount > 0) {
+      throw new ForbiddenException('A BDE already exists.');
+    }
+
     // BDE Creation
     let bde = new BDE();
     bde.name = params.name;
