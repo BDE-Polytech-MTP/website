@@ -44,3 +44,4 @@ Once all environment variables defined, you can run the backend using `npm run s
     * `MAILING_USERNAME` - The username to authenticate to the SMTP server
     * `MAILING_PASSWORD` - The password to authenticate to the SMTP server
 * `JWT_SECRET` - The secret passphrase to sign JWTs
+* `API_URL` - The URL to be used by the front SPA to make API calls

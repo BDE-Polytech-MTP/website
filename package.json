@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build && cd website-front && cross-env BACKEND_URL=/ npm run generate",
+    "build": "nest build && cd website-front && npm run generate",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
