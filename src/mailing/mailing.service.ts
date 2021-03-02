@@ -12,6 +12,7 @@ import { join } from 'path';
 import { readFile } from 'fs';
 import { MAILING_RECIPIENT } from '../config/mailing';
 import { SITE_URL } from '../config/general';
+import Mail from 'nodemailer/lib/mailer';
 
 // TODO: Handle all the mailing part using a Bull Queue (see: https://docs.nestjs.com/techniques/queues)
 
@@ -32,29 +33,40 @@ export class MailingService {
     return `"BDE Polytech" <${this.config.get(MAILING_RECIPIENT)}>`;
   }
 
+  private getFrontURL() {
+    return this.config.get(SITE_URL);
+  }
+
   async sendRegistrationMail(user: ResourceOwner) {
+    const registerURL = `${this.getFrontURL()}/compte/reset-password?token=${
+      user.resetPasswordToken
+    }`;
     const renderedTemplate = await this.renderTemplate('registration.html', {
-      registerURL: `${this.config.get(SITE_URL)}/compte/reset-password?token=${
-        user.resetPasswordToken
-      }`,
-      frontURL: this.config.get(SITE_URL),
+      registerURL,
+      frontURL: this.getFrontURL(),
     });
 
-    const info = await this.transport.sendMail({
-      from: this.getFromRecipient(),
+    await this.sendMail({
       to: user.email,
       subject: 'Inscription sur le site web du BDE',
-      text: "Inscrivez-vous sur le site du BDE à l'URL suivante: ",
+      text: `Inscrivez-vous sur le site du BDE à l'URL suivante: ${registerURL}`,
       html: renderedTemplate,
     });
-    const previewURL = getTestMessageUrl(info);
-    if (previewURL) {
-      this.logger.log(`Preview URL for mail: ${previewURL}`);
-    }
   }
 
   async sendResetPasswordMail(user: ResourceOwner) {
-    // TODO: Fill
+    const resetURL = `${this.getFrontURL()}/compte/reset-password?token=${user.resetPasswordToken}`;
+    const renderedTemplate = await this.renderTemplate('reset-password.html', {
+      resetURL,
+      frontURL: this.getFrontURL()
+    });
+
+    await this.sendMail({
+      to: user.email,
+      subject: 'Changement de mot de passe',
+      text: `Changez votre mot de passe à l'URL suivante: ${resetURL}`,
+      html: renderedTemplate,
+    })
   }
 
   private async renderTemplate(
@@ -63,7 +75,7 @@ export class MailingService {
   ) {
     let template = await this.getTemplate(templateName);
     Object.entries(values).forEach(([key, value]) => {
-      template = template.replace(`{{${key}}}`, value);
+      template = template.split(`{{${key}}}`).join(value); // Hacky: use replaceAll when Node 15
     });
     return template;
   }
@@ -99,4 +111,16 @@ export class MailingService {
       });
     });
   }
+
+  private async sendMail(options: Mail.Options) {
+    const info = await this.transport.sendMail({
+      from: this.getFromRecipient(),
+      ... options,
+    });
+    const previewURL = getTestMessageUrl(info);
+    if (previewURL) {
+      this.logger.log(`Preview URL for mail: ${previewURL}`);
+    }
+  }
+
 }
