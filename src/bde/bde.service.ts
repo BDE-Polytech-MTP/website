@@ -10,7 +10,7 @@ import { BDE, UQ_NAME_CONSTRAINT } from '../models/bde.entity';
 import { Repository } from 'typeorm';
 import { Specialty } from '../models/specialty.entity';
 import { AccountService } from '../account/account.service';
-import { Role } from '../account/roles';
+import { allRoles, Role } from '../account/roles';
 
 @Injectable()
 export class BdeService {
@@ -85,7 +85,7 @@ export class BdeService {
         lastname: params.admin.lastname,
         firstname: params.admin.firstname,
         bde: bde.id,
-        roles: [Role.WRITE_USERS, Role.READ_USERS],
+        roles: allRoles(),
       });
     } catch (e) {
       try {

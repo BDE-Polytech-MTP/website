@@ -13,6 +13,7 @@ import { BdeModule } from './bde/bde.module';
 import { MailingModule } from './mailing/mailing.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'website-front', 'dist'),
       exclude: ['/api*', '/graphql', '/oauth*', '/doc*'],
     }),
+    EventsModule,
   ],
   controllers: [],
 })

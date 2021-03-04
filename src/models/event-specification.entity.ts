@@ -4,11 +4,16 @@ import { Event } from './event.entity';
 
 @Entity()
 export class EventSpecification {
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   schoolPlacesCount: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   externPlacesCount: number;
+
+  // Foreign keys
+
+  @Column()
+  bdeId: string;
 
   // Relationships
 

@@ -13,11 +13,11 @@ export class Survey {
   @PrimaryGeneratedColumn('uuid')
   surveyID: string;
 
-  @Column({
-    type: 'bit',
-    length: 2,
-  })
-  visibility: number;
+  @Column()
+  title: string;
+
+  @Column()
+  limitedToMembers: boolean;
 
   @Column()
   description: string;
@@ -30,6 +30,6 @@ export class Survey {
   @ManyToOne(() => Event, (event) => event.surveys)
   event: Event;
 
-  @OneToMany(() => SurveyChoice, (choice) => choice.survey)
-  choices: SurveyChoice;
+  @OneToMany(() => SurveyChoice, (choice) => choice.survey, { cascade: ['insert', 'remove']})
+  choices: SurveyChoice[];
 }

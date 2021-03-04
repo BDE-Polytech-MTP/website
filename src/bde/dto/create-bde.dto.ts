@@ -1,5 +1,12 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEmail, MinLength, MaxLength, Min, Max, ArrayNotEmpty } from 'class-validator';
+import {
+  IsEmail,
+  MinLength,
+  MaxLength,
+  Min,
+  Max,
+  ArrayNotEmpty,
+} from 'class-validator';
 
 @InputType()
 export class SpecialtyDto {

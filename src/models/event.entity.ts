@@ -6,7 +6,7 @@ import { EventSpecification } from './event-specification.entity';
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn('uuid')
-  eventId: string;
+  id: string;
 
   @Column()
   title: string;
@@ -14,11 +14,8 @@ export class Event {
   @Column()
   description: string;
 
-  @Column({
-    type: 'bit',
-    length: '2',
-  })
-  visibility: number;
+  @Column()
+  limitedToMembers: boolean;
 
   @Column({ nullable: true })
   bookingStart: Date;
@@ -31,9 +28,9 @@ export class Event {
   @OneToMany(() => Booking, (booking) => booking.event)
   bookings: Booking[];
 
-  @OneToMany(() => Survey, (survey) => survey.event)
+  @OneToMany(() => Survey, (survey) => survey.event, { cascade: ['insert', 'remove'] })
   surveys: Survey[];
 
-  @OneToMany(() => EventSpecification, (specification) => specification.event)
-  specifications: EventSpecification;
+  @OneToMany(() => EventSpecification, (specification) => specification.event, { cascade: ['insert', 'remove'] })
+  specifications: EventSpecification[];
 }
