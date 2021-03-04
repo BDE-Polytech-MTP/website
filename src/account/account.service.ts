@@ -20,7 +20,6 @@ import { PasswordService } from '../password/password.service';
 
 @Injectable()
 export class AccountService {
-
   private readonly logger = new Logger(AccountService.name);
 
   constructor(
@@ -168,14 +167,17 @@ export class AccountService {
   async sendPasswordResetEmail(email: string) {
     const ro = await this.resourceOwnerRepository.findOne({
       where: {
-        email
-      }
+        email,
+      },
     });
 
     if (ro) {
       this.updateResetPasswordToken(ro);
       try {
-        await this.resourceOwnerRepository.update(ro.id, { resetPasswordToken: ro.resetPasswordToken, resetPasswordTokenExpiration: ro.resetPasswordTokenExpiration });
+        await this.resourceOwnerRepository.update(ro.id, {
+          resetPasswordToken: ro.resetPasswordToken,
+          resetPasswordTokenExpiration: ro.resetPasswordTokenExpiration,
+        });
         await this.mailingService.sendResetPasswordMail(ro);
       } catch (e) {
         this.logger.error(e);
@@ -183,7 +185,6 @@ export class AccountService {
       }
     }
 
-    return { ok: true }
+    return { ok: true };
   }
-
 }

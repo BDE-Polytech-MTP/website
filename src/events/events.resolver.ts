@@ -9,19 +9,17 @@ import { EventsService } from './events.service';
 
 @Resolver()
 export class EventsResolver {
+  constructor(private eventsService: EventsService) {}
 
-    constructor(private eventsService: EventsService) {}
-
-    @Mutation(() => EventType, { name: 'createEvent' })
-    @UseGuards(AuthGuard)
-    async createEvent(
-        @User() 
-        user: ResourceOwner,
-        @Args('event')
-        event: CreateEventDto
-    ) {
-        const result = await this.eventsService.createEvent(event, user);
-        return { id: result.id };
-    }
-
+  @Mutation(() => EventType, { name: 'createEvent' })
+  @UseGuards(AuthGuard)
+  async createEvent(
+    @User()
+    user: ResourceOwner,
+    @Args('event')
+    event: CreateEventDto,
+  ) {
+    const result = await this.eventsService.createEvent(event, user);
+    return { id: result.id };
+  }
 }

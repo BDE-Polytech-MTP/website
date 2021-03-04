@@ -55,10 +55,12 @@ export class MailingService {
   }
 
   async sendResetPasswordMail(user: ResourceOwner) {
-    const resetURL = `${this.getFrontURL()}/compte/reset-password?token=${user.resetPasswordToken}`;
+    const resetURL = `${this.getFrontURL()}/compte/reset-password?token=${
+      user.resetPasswordToken
+    }`;
     const renderedTemplate = await this.renderTemplate('reset-password.html', {
       resetURL,
-      frontURL: this.getFrontURL()
+      frontURL: this.getFrontURL(),
     });
 
     await this.sendMail({
@@ -66,7 +68,7 @@ export class MailingService {
       subject: 'Changement de mot de passe',
       text: `Changez votre mot de passe à l'URL suivante: ${resetURL}`,
       html: renderedTemplate,
-    })
+    });
   }
 
   private async renderTemplate(
@@ -115,12 +117,11 @@ export class MailingService {
   private async sendMail(options: Mail.Options) {
     const info = await this.transport.sendMail({
       from: this.getFromRecipient(),
-      ... options,
+      ...options,
     });
     const previewURL = getTestMessageUrl(info);
     if (previewURL) {
       this.logger.log(`Preview URL for mail: ${previewURL}`);
     }
   }
-
 }

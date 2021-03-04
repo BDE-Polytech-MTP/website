@@ -28,9 +28,13 @@ export class Event {
   @OneToMany(() => Booking, (booking) => booking.event)
   bookings: Booking[];
 
-  @OneToMany(() => Survey, (survey) => survey.event, { cascade: ['insert', 'remove'] })
+  @OneToMany(() => Survey, (survey) => survey.event, {
+    cascade: ['insert', 'remove'],
+  })
   surveys: Survey[];
 
-  @OneToMany(() => EventSpecification, (specification) => specification.event, { cascade: ['insert', 'remove'] })
+  @OneToMany(() => EventSpecification, (specification) => specification.event, {
+    cascade: ['insert', 'remove'],
+  })
   specifications: EventSpecification[];
 }

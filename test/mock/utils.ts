@@ -19,7 +19,7 @@ export function mockRepository(model: EntityClassOrSchema) {
       },
       count: () => {
         return 0;
-      }
+      },
     },
   };
 }

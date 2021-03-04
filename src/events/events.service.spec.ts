@@ -10,10 +10,7 @@ describe('EventsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        EventsService,
-        mockRepository(Event)
-      ],
+      providers: [EventsService, mockRepository(Event)],
     }).compile();
 
     service = module.get<EventsService>(EventsService);
@@ -24,7 +21,6 @@ describe('EventsService', () => {
   });
 
   describe('createEvent', () => {
-
     it('should throw ForbiddenException if creator does not have WRITE_EVENTS role', () => {
       const ro = new ResourceOwner();
       ro.roles = [];
@@ -33,7 +29,5 @@ describe('EventsService', () => {
 
       return expect(result).rejects.toThrow(ForbiddenException);
     });
-
-  })
-
+  });
 });

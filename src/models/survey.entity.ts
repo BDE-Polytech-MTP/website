@@ -30,6 +30,8 @@ export class Survey {
   @ManyToOne(() => Event, (event) => event.surveys)
   event: Event;
 
-  @OneToMany(() => SurveyChoice, (choice) => choice.survey, { cascade: ['insert', 'remove']})
+  @OneToMany(() => SurveyChoice, (choice) => choice.survey, {
+    cascade: ['insert', 'remove'],
+  })
   choices: SurveyChoice[];
 }

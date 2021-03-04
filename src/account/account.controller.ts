@@ -34,5 +34,4 @@ export class AccountController {
   async askForReset(@Body() body: SendResetEmailRequest) {
     return this.accountService.sendPasswordResetEmail(body.email);
   }
-
 }
