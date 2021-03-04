@@ -1,5 +1,7 @@
 # BDE Backend
 
+[![Build](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml/badge.svg)](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml)
+
 This project is the code for the backend of the BDE website
 
 ## Development
