@@ -1,6 +1,6 @@
 # BDE Backend
 
-[![Build](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml/badge.svg)](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml)
+[![Build](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml/badge.svg)](https://github.com/BDE-Polytech-MTP/website/actions/workflows/build.yml) [![codecov](https://codecov.io/gh/BDE-Polytech-MTP/website/branch/master/graph/badge.svg?token=FWN561JQRQ)](https://codecov.io/gh/BDE-Polytech-MTP/website)
 
 This project is the code for the backend of the BDE website
 
