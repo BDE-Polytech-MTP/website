@@ -142,10 +142,10 @@ export class OAuthService {
     }
 
     const token = new OAuthToken();
+    token.resourceOwner = authCode.resourceOwner;
     this.generateAccessToken(token);
     token.refreshToken = uid(32);
     token.generationCode = authCode;
-    token.resourceOwner = authCode.resourceOwner;
     token.scopes = authCode.scopes;
 
     await this.oauthTokenRepository.save(token);
@@ -186,10 +186,10 @@ export class OAuthService {
     }
 
     const token = new OAuthToken();
+    token.resourceOwner = resource_owner;
     this.generateAccessToken(token);
     token.refreshToken = uid(32);
     token.scopes = ['all'];
-    token.resourceOwner = resource_owner;
 
     await this.oauthTokenRepository.save(token);
     return {
@@ -209,7 +209,8 @@ export class OAuthService {
     refreshToken: string,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const token = await this.oauthTokenRepository.findOne({
-      where: { refresh_token: refreshToken },
+      where: { refreshToken },
+      relations: ['resourceOwner']
     });
     if (token === undefined) {
       throw new BadRequestException('Invalid token');
@@ -299,6 +300,8 @@ export class OAuthService {
       ...content,
       iat: (token.issuedAt.getTime() / 1000) | 0,
       exp: (token.expiresAt.getTime() / 1000) | 0,
+      sub: token.resourceOwner.id,
+      uid: uid(10),
     };
 
     token.accessToken = jwt.sign(jwtContent, this.config.get(JWT_SECRET), {
