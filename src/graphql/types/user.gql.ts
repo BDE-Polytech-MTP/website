@@ -17,7 +17,10 @@ export class UserType {
   @Field()
   bdeId: string;
 
-  @Field(() => BdeType)
+  @Field()
+  membershipDate: Date;
+
+  @Field(() => BdeType, { nullable: true })
   bde: BdeType;
 
   @Field(() => UserSpecialtyType, { nullable: true })
@@ -31,6 +34,9 @@ export class UserType {
     user.bdeId = ro.bdeId;
     if (ro.specialtyName) {
       user.specialty = UserSpecialtyType.fromResourceOwner(ro);
+    }
+    if (ro.membershipDate) {
+      user.membershipDate = ro.membershipDate;
     }
     return user;
   }
