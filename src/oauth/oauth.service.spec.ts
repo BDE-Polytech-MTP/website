@@ -134,6 +134,8 @@ describe('OauthService', () => {
           code.hasAlreadyBeenUsed = () => false;
           code.hasBeenGeneratedBy = () => true;
           code.isExpired = () => false;
+          code.resourceOwner = new ResourceOwner();
+          code.resourceOwner.id = 'ro-uuid';
           return code;
         });
 
@@ -170,6 +172,7 @@ describe('OauthService', () => {
         .mockImplementation(async (cond: any) => {
           if (cond.where[0].email === 'lowercase') {
             const ro = new ResourceOwner();
+            ro.id = 'ro-uuid';
             ro.password = 'password';
             return ro;
           }
@@ -227,7 +230,11 @@ describe('OauthService', () => {
     it('should resolve if password is valid', async (done) => {
       jest
         .spyOn(resourceOwnerRepository, 'findOne')
-        .mockImplementation(async () => new ResourceOwner());
+        .mockImplementation(async () => {
+          const ro = new ResourceOwner();
+          ro.id = 'ro-uuid';
+          return ro;
+        });
       jest
         .spyOn(passwordService, 'checkPassword')
         .mockImplementation(async () => true);
