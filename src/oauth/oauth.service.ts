@@ -210,7 +210,7 @@ export class OAuthService {
   ): Promise<{ access_token: string; refresh_token: string }> {
     const token = await this.oauthTokenRepository.findOne({
       where: { refreshToken },
-      relations: ['resourceOwner']
+      relations: ['resourceOwner'],
     });
     if (token === undefined) {
       throw new BadRequestException('Invalid token');

@@ -1,4 +1,4 @@
-import { Role } from "../roles";
+import { Role } from '../roles';
 
 export interface NewAccountDto {
   firstname: string;
