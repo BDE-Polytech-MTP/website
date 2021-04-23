@@ -16,6 +16,9 @@ import Mail from 'nodemailer/lib/mailer';
 
 // TODO: Handle all the mailing part using a Bull Queue (see: https://docs.nestjs.com/techniques/queues)
 
+/**
+ * This service is responsible for sending emails.
+ */
 @Injectable()
 export class MailingService {
   private templates: Record<string, string> = {};
@@ -29,15 +32,22 @@ export class MailingService {
     this.transport = transport;
   }
 
+  /**
+   * @returns the default recipient to use to send emails with
+   */
   private getFromRecipient() {
     return `"BDE Polytech" <${this.config.get(MAILING_RECIPIENT)}>`;
   }
 
+  /**
+   * @returns The host name for the frontend
+   */
   private getFrontURL() {
     return this.config.get(SITE_URL);
   }
 
   async sendRegistrationMail(user: ResourceOwner) {
+    this.logger.debug(`Sending registration email to ${user.email}`);
     const registerURL = `${this.getFrontURL()}/compte/reset-password?token=${
       user.resetPasswordToken
     }`;
@@ -55,6 +65,7 @@ export class MailingService {
   }
 
   async sendResetPasswordMail(user: ResourceOwner) {
+    this.logger.debug(`Sending password reset email to ${user.email}`);
     const resetURL = `${this.getFrontURL()}/compte/reset-password?token=${
       user.resetPasswordToken
     }`;
@@ -71,10 +82,23 @@ export class MailingService {
     });
   }
 
+  /**
+   * Retrieves template content then replace each occurrence of
+   * `{{key}}` with the value of `values[key]`.
+   *
+   * @param templateName The name of the template to render
+   * @param values The values to replace in the template
+   * @returns the rendered template
+   */
   private async renderTemplate(
     templateName: string,
     values: Record<string, string>,
   ) {
+    this.logger.debug(
+      `Rendering email template ${templateName} with values: ${JSON.stringify(
+        values,
+      )}`,
+    );
     let template = await this.getTemplate(templateName);
     Object.entries(values).forEach(([key, value]) => {
       template = template.split(`{{${key}}}`).join(value); // Hacky: use replaceAll when Node 15
@@ -82,6 +106,12 @@ export class MailingService {
     return template;
   }
 
+  /**
+   * Retrieves template content from cache or loads it from file system.
+   *
+   * @param templateName The name of the template to retrieve content of
+   * @returns the content of the template
+   */
   private async getTemplate(templateName: string) {
     if (!this.templates[templateName]) {
       try {
@@ -94,7 +124,15 @@ export class MailingService {
     return this.templates[templateName];
   }
 
+  /**
+   * Reads the content of the file with the given name in the `mail-templates`
+   * directory then returns it.
+   *
+   * @param templateName The name of the template to load
+   * @returns the content of the template
+   */
   private async loadTemplate(templateName: string): Promise<string> {
+    this.logger.debug(`Loading email template ${templateName} ...`);
     const templatePath = join(
       __dirname,
       '..',
@@ -105,20 +143,29 @@ export class MailingService {
     return new Promise((resolve, reject) => {
       readFile(templatePath, { encoding: 'utf-8' }, (err, data) => {
         if (err) {
-          this.logger.log(err);
-          reject(`Unable to load mail template ${templatePath}`);
+          this.logger.error(`Error loading email template ${templateName}`);
+          this.logger.error(err);
+          reject(`Unable to load email template ${templatePath}`);
         } else {
+          this.logger.debug(`Loaded email template ${templateName}.`);
           resolve(data);
         }
       });
     });
   }
 
+  /**
+   * Sends an email using the current `Transporter`.
+   *
+   * @param options
+   */
   private async sendMail(options: Mail.Options) {
+    this.logger.debug(`Sending email to ${options.to} ...`);
     const info = await this.transport.sendMail({
       from: this.getFromRecipient(),
       ...options,
     });
+    this.logger.debug(`Sent email to ${options.to}.`);
     const previewURL = getTestMessageUrl(info);
     if (previewURL) {
       this.logger.log(`Preview URL for mail: ${previewURL}`);

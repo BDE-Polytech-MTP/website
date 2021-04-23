@@ -17,6 +17,7 @@ import { MailingService } from '../mailing/mailing.service';
 import { uid } from 'rand-token';
 import * as moment from 'moment';
 import { PasswordService } from '../password/password.service';
+import { NewAccountDto } from './dto/new-account.dto';
 
 @Injectable()
 export class AccountService {
@@ -29,20 +30,24 @@ export class AccountService {
     private passwordService: PasswordService,
   ) {}
 
+  /**
+   * Creates a new account then send an email to email address of the
+   * newly created account to allow him or her to define a password.
+   *
+   * If a creator is provided, this function checks if this one has
+   * the WRITE_USERS role, otherwise it fails.
+   *
+   * @param userData The required information to create the account
+   * @param creator The user who requested the account creation, if any
+   * @returns a promise of the created account
+   */
   async createAccount(
-    userData: {
-      firstname: string;
-      email: string;
-      lastname: string;
-      bde: string;
-      membershipDate?: Date;
-      roles?: Role[];
-    },
+    userData: NewAccountDto,
     creator?: ResourceOwner,
   ): Promise<ResourceOwner> {
     if (creator && !creator.hasRole(Role.WRITE_USERS)) {
       throw new ForbiddenException(
-        'You must have the role WRITE_USERS to create an user',
+        `You must have the role ${Role.WRITE_USERS} to create an user`,
       );
     }
 
@@ -59,7 +64,7 @@ export class AccountService {
     user.lastname = userData.lastname;
     user.membershipDate = userData.membershipDate;
     user.roles = userData.roles;
-    this.updateResetPasswordToken(user);
+    this.updateResetPasswordToken(user, 30, 'd');
 
     try {
       user = await this.resourceOwnerRepository.save(user);
@@ -125,6 +130,13 @@ export class AccountService {
     return resourceOwner;
   }
 
+  /**
+   * Checks if the given reset-password is linked to an existing account
+   * and is not expired.
+   *
+   * @param token The reset-password token to check validity of
+   * @returns true if the token is valid, false otherwise
+   */
   async checkResetPasswordToken(token: string) {
     const resourceOwner = await this.resourceOwnerRepository.findOne({
       where: {
@@ -140,6 +152,16 @@ export class AccountService {
     return { valid: true };
   }
 
+  /**
+   * Sets the given password as the new password for the account the reset-password
+   * token was generated for.
+   *
+   * If the token is expired, a BadRequestException is thrown.
+   *
+   * @param token The reset-password token the user received by email
+   * @param password The new password to set
+   * @returns
+   */
   async resetPassword(token: string, password: string) {
     const valid = (await this.checkResetPasswordToken(token)).valid;
     if (!valid) {
@@ -151,7 +173,7 @@ export class AccountService {
         resetPasswordToken: token,
       },
       {
-        resetPasswordToken: null,
+        resetPasswordToken: null, // Avoid to resuse same token multiple times
         resetPasswordTokenExpiration: null,
         password: newPassword,
       },
@@ -159,11 +181,36 @@ export class AccountService {
     return { ok: true };
   }
 
-  private updateResetPasswordToken(user: ResourceOwner) {
+  /**
+   * Updates the `resetPasswordToken` and `resetPasswordTokenExpiration` fields
+   * of the given user. This method do not update the database, it's just an
+   * utility method.
+   *
+   * @param user The user to update the reset-password token of
+   * @param expirationTime The amount of time the generated token will be valid
+   * @param timeUnit The unit of time of the expiration time
+   */
+  private updateResetPasswordToken(
+    user: ResourceOwner,
+    expirationTime = 24,
+    timeUnit: moment.unitOfTime.DurationConstructor = 'h',
+  ) {
     user.resetPasswordToken = uid(32);
-    user.resetPasswordTokenExpiration = moment().add('24', 'h').toDate();
+    user.resetPasswordTokenExpiration = moment()
+      .add(expirationTime, timeUnit)
+      .toDate();
   }
 
+  /**
+   * Updates the reset-password token of the account with the given
+   * email then sends an email to the given email address with a link
+   * to allow to define a new password.
+   *
+   * If no account with the given email address was found, this method
+   * is a noop but do not fails.
+   *
+   * @param email The email of the account to reset password of
+   */
   async sendPasswordResetEmail(email: string) {
     const ro = await this.resourceOwnerRepository.findOne({
       where: {

@@ -15,12 +15,22 @@ export class AccountResolver {
     private bdeResolver: BdeResolver,
   ) {}
 
+  /**
+   * Allows to retrieve information of the authenticated user.
+   *
+   * @param user The authenticated user
+   */
   @Query(() => UserType, { name: 'me' })
   @UseGuards(AuthGuard)
   async me(@User() user: ResourceOwner) {
     return UserType.fromResourceOwnerModel(user);
   }
 
+  /**
+   * Allows to retrieve information of the user with the given id.
+   *
+   * @param id The uuid of the user
+   */
   @Query(() => UserType, { name: 'user' })
   async getUser(@Args('id') id: string) {
     const resourceOwner = await this.accountService.getAccountById(id);
