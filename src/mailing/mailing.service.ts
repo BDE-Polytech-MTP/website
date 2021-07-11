@@ -46,6 +46,24 @@ export class MailingService {
     return this.config.get(SITE_URL);
   }
 
+  /**
+   * Send a mail to confirm the sign in of the user. The account have to be validate by a specific member before adding a password.
+   * @param user is the user who will receive the email.
+   */
+  async sendFirstPartRegistrationMail(user: ResourceOwner) {
+    this.logger.debug(`Sending first part registration email to ${user.email}`);
+    const renderedTemplate = await this.renderTemplate('confirm_registration.html', {
+      frontURL: this.getFrontURL(),
+    });
+
+    await this.sendMail({
+      to: user.email,
+      subject: 'Validation de votre inscription',
+      text: `Votre compte est maintenant en attente de validation, nous nous efforçons de minimiser les délais.`,
+      html: renderedTemplate,
+    });
+  }
+
   async sendRegistrationMail(user: ResourceOwner) {
     this.logger.debug(`Sending registration email to ${user.email}`);
     const registerURL = `${this.getFrontURL()}/compte/reset-password?token=${

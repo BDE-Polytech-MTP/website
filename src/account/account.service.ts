@@ -81,6 +81,37 @@ export class AccountService {
     return user;
   }
 
+  async createAccountToValidate (
+    mail: string,
+    firstN: string,
+    lastN: string,
+    bdeId: string
+  ): Promise<ResourceOwner> {
+
+    let user = new ResourceOwner();
+    user.email = mail.toLowerCase();
+    user.firstname = firstN;
+    user.lastname = lastN;
+    user.roles = [];
+    user.bdeId = bdeId;
+    user.membershipDate = null;
+
+    try {
+      user = await this.resourceOwnerRepository.save(user);
+    } catch (e) {
+      if (e.constraint && e.constraint === UQ_EMAIL_CONSTRAINT) {
+        throw new BadRequestException('An user with this email already exists');
+      }
+      throw new InternalServerErrorException('Unable to create account');
+    }
+
+    try {
+      await this.mailingService.sendFirstPartRegistrationMail(user);
+    } catch {}
+
+    return user;
+  }
+
   async updateAccount(
     userId: string,
     userData: {

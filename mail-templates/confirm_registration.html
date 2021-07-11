@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang='fr'>
+
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <meta name='x-apple-disable-message-reformatting'>
+
+  <link href='https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap' rel='stylesheet' type='text/css'>
+  <style>
+
+      @import url("https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap");
+
+      .centered {
+          text-align: center;
+      }
+
+      a {
+          color: inherit;
+      }
+
+      body {
+          font-family: 'Raleway', 'Courier New', Courier, monospace;
+          background-color: #e7e7e7;
+          max-width: 450px;
+      }
+
+      header {
+          display: flex;
+          flex-direction: row;
+      }
+
+      header h3 {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          font-weight: 200;
+          font-size: 2em;
+      }
+
+      main .register-button {
+          display: inline-block;
+          box-sizing: border-box;
+          background-color: #003865;
+          border-radius: 4px;
+          padding: 10px 20px;
+          text-align: center;
+          color: white;
+          text-decoration: none;
+          width: 100%;
+          font-size: 22px;
+      }
+
+      hr {
+          color: rgba(187, 187, 187, 0.435);
+          margin: 20px 0;
+      }
+
+      footer {
+          color: #95a5a6;
+          font-size: 0.7em;
+          line-height: 160%;
+      }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <img src='{{frontURL}}/public/icons/icon-192x192.png' width='147px' alt='Logo du site' />
+  <h3>BDE Polytech</h3>
+</header>
+
+<main>
+
+  <p>
+    Bonjour,<br>
+    <br>
+    Votre inscription a été prise en compte, elle est maintenant en attente de validation par un membre du BDE.
+    Dès lors que votre compte sera validé, vous recevrez un mail pour finaliser votre inscription.
+  </p>
+
+  <p>
+    Vous pourrez, par la suite, profiter de toutes les fonctionnalités du site !
+  </p>
+
+</main>
+
+<hr>
+
+<footer>
+  <p class = "centered">
+    Site du BDE: <a href='{{frontURL}}' target='_blank' rel='noopener noreferer'>{{frontURL}}</a>
+    <br>
+
+    Contact: <br>
+    📧
+    <a href='mailto:fhugouvieux@gmail.com'>
+      "Florent Hugouvieux"
+      &lt;fhugouvieux@gmail.com&gt;
+    </a>
+    <br>
+    📧
+    <a href='mailto:julien.vendran@etu.umontpellier.fr.fr'>
+      "Julien Vendran"
+    &lt;julien.vendran@etu.umontpellier.fr&gt;
+    </a>
+  </p>
+
+  <p  class = "centered">
+      Les données demandées sont utilisées pour le bon fonctionnement du site. Vos données restent confidentielles et nous ne revendons pas vos données.
+      Pour supprimer votre compte, utilisez un des contacts ci-dessus.
+    </p>
+
+</footer>
+
+</body>
+
+</html>
