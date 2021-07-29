@@ -14,6 +14,10 @@ export class UserType {
   @Field()
   email: string;
 
+  //By using this we can know all access of the connected user
+  @Field(type => [String])
+  roles: string[];
+
   @Field()
   bdeId: string;
 
@@ -30,6 +34,7 @@ export class UserType {
     const user = new UserType();
     user.firstname = ro.firstname;
     user.lastname = ro.lastname;
+    user.roles = ro.roles;
     user.email = ro.email;
     user.bdeId = ro.bdeId;
     if (ro.specialtyName) {
