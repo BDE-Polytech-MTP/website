@@ -7,7 +7,6 @@ import { UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../oauth/guard/auth.guard';
 import { User } from '../oauth/decorator/user.decorator';
 import { ResourceOwner } from '../models/resource-owner.entity';
-import { BdeAdminDto, SpecialtyDto } from '../bde/dto/create-bde.dto';
 
 @Resolver(() => UserType)
 export class AccountResolver {
@@ -49,24 +48,33 @@ export class AccountResolver {
   ) {
     console.log("On passe ");
     //Assume that only one BDE id there
-    this.bdeResolver.getBDEs()
-      .then(bde => {
-          console.log(bde[0].id);
+    return this.bdeResolver.getBDEs()
+      .then(async bde => {
+        console.log(bde[0].id);
 
-          this.accountService.createAccountToValidate(mail, firstN, lastN, bde[0].id)
-            .then(result => {
-              return UserType.fromResourceOwnerModel(result);
-            });
+        const result = await this.accountService.createAccountToValidate(mail, firstN, lastN, bde[0].id); //Assume that there is only one BDE.
+        return UserType.fromResourceOwnerModel(result);
       }
     )
-      .catch(() => {
+      .catch((e) => {
+        console.error(e);
         console.log("Une erreur est survenue dans la récupération des informations du BDE.");
-      })
+        const err = new ResourceOwner();
+        return UserType.fromResourceOwnerModel(err);
+      });
     //console.log(await this.bdeResolver.getBDE(await this.bdeResolver.getBDEs()[0].id));
   }
 
   @ResolveField('bde', () => BdeType)
   async getUserBde(@Parent() user: UserType) {
     return this.bdeResolver.getBDE(user.bdeId);
+  }
+
+  /**
+   * Get all user who are not validate yet.
+   */
+  @Query(() => [UserType], {name: 'allUsers'})
+  async getAllNonValidateUsersQ () {
+    return this.accountService.getAllNonValidateUsers();
   }
 }
