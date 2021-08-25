@@ -64,7 +64,7 @@ export class ResourceOwner {
   bdeId: string;
   
   @Column('boolean', { default: false })
-  isValidateMember: boolean = false;
+  isvalidatemember: boolean = false;
 
   // Relationships
 
