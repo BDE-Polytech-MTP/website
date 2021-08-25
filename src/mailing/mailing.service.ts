@@ -100,6 +100,38 @@ export class MailingService {
     });
   }
 
+  async sendValidateAccountMail(user: ResourceOwner) {
+    this.logger.debug(`Sending validate account email to ${user.email}`);
+    const resetURL = `${this.getFrontURL()}/compte/reset-password?token=${
+      user.resetPasswordToken
+    }`;
+    const renderedTemplate = await this.renderTemplate('account_validate.html', {
+      resetURL,
+      frontURL: this.getFrontURL(),
+    });
+
+    await this.sendMail({
+      to: user.email,
+      subject: 'Votre compte à été validé !',
+      text: `Ajoutez un mot de passe à l'adresse suivante: ${resetURL}`,
+      html: renderedTemplate,
+    });
+  }
+
+  async sendUnvalidateAccountMail(user: ResourceOwner) {
+    this.logger.debug(`Sending unvalidate account email to ${user.email}`);
+    const renderedTemplate = await this.renderTemplate('account-nonvalidate.html', {
+      frontURL: this.getFrontURL(),
+    });
+
+    await this.sendMail({
+      to: user.email,
+      subject: 'Votre compte à été refusé ...',
+      text: `Nous ne pouvons pas donner suite à votre demande.`,
+      html: renderedTemplate,
+    });
+  }
+
   /**
    * Retrieves template content then replace each occurrence of
    * `{{key}}` with the value of `values[key]`.
