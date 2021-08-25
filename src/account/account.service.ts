@@ -164,6 +164,18 @@ export class AccountService {
     return resourceOwner;
   }
 
+  async getAccountByEmail(mail: string) {
+    const resourceOwner = await this.resourceOwnerRepository.findOne({
+      where: {
+        email: mail
+      }
+    });
+    if (!resourceOwner) {
+      throw new NotFoundException('No account with the given email can be found.');
+    }
+    return resourceOwner;
+  }
+
   /**
    * Checks if the given reset-password is linked to an existing account
    * and is not expired.
@@ -189,7 +201,7 @@ export class AccountService {
   /**
    * Check if the account associate with this token is validate by a specific member.
    *
-   * @param token The reset-apssword token
+   * @param token The reset-password token
    * @returns true if the account is a valid account, false otherwise
    */
   async checkValidateAccount (token: String) {
@@ -200,7 +212,7 @@ export class AccountService {
     });
     if (
       !resourceOwner ||
-      resourceOwner.isValidateMember == false
+      resourceOwner.isvalidatemember == false
     ) {
       return {
         valid: false
@@ -285,7 +297,7 @@ export class AccountService {
       },
     });
 
-    if (ro && ro.isValidateMember == true) {
+    if (ro && ro.isvalidatemember == true) {
       this.updateResetPasswordToken(ro);
       try {
         await this.resourceOwnerRepository.update(ro.id, {
@@ -310,6 +322,49 @@ export class AccountService {
 
   getAllNonValidateUsers() {
     this.logger.debug("Searching all non validate users ...");
-    return this.resourceOwnerRepository.find();
+    return this.resourceOwnerRepository.find(
+      {
+        where: {
+          isvalidatemember: false,
+        }
+      }
+    );
+  }
+
+  async validateUser(user: ResourceOwner) {
+    this.logger.debug("Validation of a new user ...");
+
+    this.updateResetPasswordToken(user, 30, 'd');
+    user.isvalidatemember = true;
+
+    try {
+      user = await this.resourceOwnerRepository.save(user);
+    } catch (e) {
+      throw new InternalServerErrorException('Unable to create account');
+    }
+
+    //Send registration mail
+    try {
+      await this.mailingService.sendValidateAccountMail(user);
+    } catch {}
+
+    return user;
+  }
+
+  async unvalidateUser(user: ResourceOwner) {
+    this.logger.debug("Suppresion of a new user ...");
+
+    try {
+      user = await this.resourceOwnerRepository.remove(user);
+    } catch (e) {
+      throw new InternalServerErrorException('Unable to delete an account');
+    }
+
+    //Send registration mail
+    try {
+      await this.mailingService.sendUnvalidateAccountMail(user);
+    } catch {}
+
+    return user;
   }
 }

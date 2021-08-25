@@ -58,7 +58,7 @@ export class AccountResolver {
     )
       .catch((e) => {
         console.error(e);
-        console.log("Une erreur est survenue dans la récupération des informations du BDE.");
+        console.error("Une erreur est survenue dans la récupération des informations du BDE.");
         const err = new ResourceOwner();
         return UserType.fromResourceOwnerModel(err);
       });
@@ -76,5 +76,55 @@ export class AccountResolver {
   @Query(() => [UserType], {name: 'allUsers'})
   async getAllNonValidateUsersQ () {
     return this.accountService.getAllNonValidateUsers();
+  }
+
+  /**
+   * Set a user to validate.
+   * @param mail is the mail of the user we want to validate
+   */
+  @Mutation(() => UserType, { name: 'validateUser' })
+  async ValidateAnAccount (
+    @Args('mail')
+      mail: string,
+  ) {
+    console.log("Notre mail reçu : " + mail);
+    return await this.accountService.getAccountByEmail(mail)
+      .then(async user => {
+          const result = await this.accountService.validateUser(user);
+          console.log("La validation de l'utilisateur a bien été effectuée ...");
+          return UserType.fromResourceOwnerModel(result);
+        }
+      )
+      .catch((e) => {
+        console.error(e);
+        console.error("Une erreur est survenue dans la récupération des informations du BDE ...");
+        const err = new ResourceOwner();
+        return UserType.fromResourceOwnerModel(err);
+      });
+  }
+
+  /**
+   * Delete users information from database. Inform the users by email.
+   * @param mail is the mail of the user we want to validate
+   */
+  @Mutation(() => UserType, { name: 'deleteUser' })
+  async UnvalidateAnAccount (
+    @Args('mail')
+      mail: string,
+  ) {
+    console.log("Notre mail reçu : " + mail);
+    return await this.accountService.getAccountByEmail(mail)
+      .then(async user => {
+          const result = await this.accountService.unvalidateUser(user);
+          console.log("La suppression de l'utilisateur a bien été effectuée ...");
+          return UserType.fromResourceOwnerModel(result);
+        }
+      )
+      .catch((e) => {
+        console.error(e);
+        console.error("Une erreur est survenue dans la récupération des informations du BDE ...");
+        const err = new ResourceOwner();
+        return UserType.fromResourceOwnerModel(err);
+      });
   }
 }
