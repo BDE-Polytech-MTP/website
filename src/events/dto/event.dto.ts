@@ -19,7 +19,7 @@ export class CreateEventDto {
   bookingEnd: Date;
 
   @Field()
-  limitedToMember: boolean;
+  limitedToMembers: boolean;
 
   @Field(() => [EventPlacesDto])
   places: EventPlacesDto[];

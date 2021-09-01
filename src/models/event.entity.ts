@@ -1,7 +1,14 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Booking } from './booking.entity';
 import { Survey } from './survey.entity';
 import { EventSpecification } from './event-specification.entity';
+import { BDE } from './bde.entity';
 
 @Entity()
 export class Event {
@@ -23,7 +30,13 @@ export class Event {
   @Column({ nullable: true })
   bookingEnd: Date;
 
+  @Column()
+  organizerId: string;
+
   // Relationships
+
+  @ManyToOne(() => BDE)
+  organizer: BDE;
 
   @OneToMany(() => Booking, (booking) => booking.event)
   bookings: Booking[];

@@ -23,14 +23,19 @@ export class EventsService {
     const event = new Event();
     event.title = eventSpecif.title;
     event.description = eventSpecif.description;
-    event.limitedToMembers = eventSpecif.limitedToMember;
+    event.limitedToMembers = eventSpecif.limitedToMembers;
     event.bookingStart = eventSpecif.bookingStart;
     event.bookingEnd = eventSpecif.bookingEnd;
+    event.organizerId = creator.bdeId;
 
     event.specifications = eventSpecif.places.map((spec) => {
       const places = new EventSpecification();
       places.bdeId = spec.bde;
-      places.externPlacesCount = spec.forExterns < 0 ? null : spec.forExterns;
+      places.externPlacesCount = event.limitedToMembers
+        ? 0
+        : spec.forExterns < 0
+        ? null
+        : spec.forExterns;
       places.schoolPlacesCount = spec.forSchool < 0 ? null : spec.forSchool;
       return places;
     });
