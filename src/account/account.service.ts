@@ -66,7 +66,7 @@ export class AccountService {
     user.roles = userData.roles;
     this.updateResetPasswordToken(user, 30, 'd');
 
-    try {
+    try { //TODO : Gérer ces erreurs pour qu'il s'affiche correctement en front
       user = await this.resourceOwnerRepository.save(user);
     } catch (e) {
       if (e.constraint && e.constraint === UQ_EMAIL_CONSTRAINT) {
@@ -78,6 +78,40 @@ export class AccountService {
     try {
       await this.mailingService.sendRegistrationMail(user);
     } catch {}
+    return user;
+  }
+
+  async createAccountToValidate (
+    mail: string,
+    firstN: string,
+    lastN: string,
+    bdeId: string
+  ): Promise<ResourceOwner> {
+    let local = true; //Disbale mail
+
+    let user = new ResourceOwner();
+    user.email = mail.toLowerCase();
+    user.firstname = firstN;
+    user.lastname = lastN;
+    user.roles = [];
+    user.bdeId = bdeId;
+    user.membershipDate = null;
+
+    try {
+      user = await this.resourceOwnerRepository.save(user);
+    } catch (e) {
+      if (e.constraint && e.constraint === UQ_EMAIL_CONSTRAINT) {
+        throw new BadRequestException('An user with this email already exists');
+      }
+      throw new InternalServerErrorException('Unable to create account');
+    }
+
+    if ( ! local) {
+      try {
+        await this.mailingService.sendFirstPartRegistrationMail(user);
+      } catch {}
+    }
+
     return user;
   }
 
@@ -130,6 +164,18 @@ export class AccountService {
     return resourceOwner;
   }
 
+  async getAccountByEmail(mail: string) {
+    const resourceOwner = await this.resourceOwnerRepository.findOne({
+      where: {
+        email: mail
+      }
+    });
+    if (!resourceOwner) {
+      throw new NotFoundException('No account with the given email can be found.');
+    }
+    return resourceOwner;
+  }
+
   /**
    * Checks if the given reset-password is linked to an existing account
    * and is not expired.
@@ -153,19 +199,50 @@ export class AccountService {
   }
 
   /**
+   * Check if the account associate with this token is validate by a specific member.
+   *
+   * @param token The reset-password token
+   * @returns true if the account is a valid account, false otherwise
+   */
+  async checkValidateAccount (token: String) {
+    const resourceOwner = await this.resourceOwnerRepository.findOne({
+      where: {
+        resetPasswordToken: token,
+      },
+    });
+    if (
+      !resourceOwner ||
+      resourceOwner.isvalidatemember == false
+    ) {
+      return {
+        valid: false
+      };
+    }
+    return {
+      valid: true
+    };
+  }
+
+  /**
    * Sets the given password as the new password for the account the reset-password
    * token was generated for.
    *
    * If the token is expired, a BadRequestException is thrown.
+   * If the account has not yet been validate, a BadRequestException is thrown.
    *
    * @param token The reset-password token the user received by email
    * @param password The new password to set
    * @returns
    */
   async resetPassword(token: string, password: string) {
+    this.logger.debug("Starting the reset password process ...");
     const valid = (await this.checkResetPasswordToken(token)).valid;
+    const validAcc = (await this.checkValidateAccount(token)).valid;
+    this.logger.debug("Compte validé : " + validAcc + ".");
     if (!valid) {
       throw new BadRequestException('The given token is invalid');
+    } else if (!validAcc) {
+      throw new BadRequestException('The account has not yet been validated');
     }
     const newPassword = await this.passwordService.hashPassword(password);
     await this.resourceOwnerRepository.update(
@@ -178,6 +255,7 @@ export class AccountService {
         password: newPassword,
       },
     );
+    this.logger.debug("The new password is now configured ...");
     return { ok: true };
   }
 
@@ -208,6 +286,7 @@ export class AccountService {
    *
    * If no account with the given email address was found, this method
    * is a noop but do not fails.
+   * If the given email is not validate yet, the method throw a BadRequestException.
    *
    * @param email The email of the account to reset password of
    */
@@ -218,7 +297,7 @@ export class AccountService {
       },
     });
 
-    if (ro) {
+    if (ro && ro.isvalidatemember == true) {
       this.updateResetPasswordToken(ro);
       try {
         await this.resourceOwnerRepository.update(ro.id, {
@@ -230,8 +309,62 @@ export class AccountService {
         this.logger.error(e);
         throw new InternalServerErrorException({ ok: false });
       }
+    } else {
+      throw new BadRequestException({
+        msg: 'The account has not yet been validated',
+        ok: false,
+      });
     }
 
     return { ok: true };
+  }
+
+
+  getAllNonValidateUsers() {
+    this.logger.debug("Searching all non validate users ...");
+    return this.resourceOwnerRepository.find(
+      {
+        where: {
+          isvalidatemember: false,
+        }
+      }
+    );
+  }
+
+  async validateUser(user: ResourceOwner) {
+    this.logger.debug("Validation of a new user ...");
+
+    this.updateResetPasswordToken(user, 30, 'd');
+    user.isvalidatemember = true;
+
+    try {
+      user = await this.resourceOwnerRepository.save(user);
+    } catch (e) {
+      throw new InternalServerErrorException('Unable to create account');
+    }
+
+    //Send registration mail
+    try {
+      await this.mailingService.sendValidateAccountMail(user);
+    } catch {}
+
+    return user;
+  }
+
+  async unvalidateUser(user: ResourceOwner) {
+    this.logger.debug("Suppresion of a new user ...");
+
+    try {
+      user = await this.resourceOwnerRepository.remove(user);
+    } catch (e) {
+      throw new InternalServerErrorException('Unable to delete an account');
+    }
+
+    //Send registration mail
+    try {
+      await this.mailingService.sendUnvalidateAccountMail(user);
+    } catch {}
+
+    return user;
   }
 }
