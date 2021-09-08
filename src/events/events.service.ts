@@ -6,7 +6,7 @@ import { Event } from '../models/event.entity';
 import { ResourceOwner } from '../models/resource-owner.entity';
 import { SurveyChoice } from '../models/survey-choice.entity';
 import { Survey } from '../models/survey.entity';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { CreateEventDto } from './dto/event.dto';
 
 @Injectable()
@@ -58,5 +58,31 @@ export class EventsService {
     });
 
     return await this.eventsRepository.save(event);
+  }
+
+  async getEventsAvailablesForUser(user: ResourceOwner) {
+    const placesCounter: keyof EventSpecification = user.isExtern
+      ? 'externPlacesCount'
+      : 'schoolPlacesCount';
+
+    const builder = this.eventsRepository
+      .createQueryBuilder('event')
+      .select('event')
+      .leftJoin('event.specifications', 'spec')
+      .addSelect('spec')
+      .where(
+        new Brackets((qb) =>
+          qb
+            .where(`spec.${placesCounter} > 0`)
+            .orWhere(`spec.${placesCounter} IS NULL`),
+        ),
+      )
+      .andWhere('spec.bdeId = :id', { id: user.bdeId });
+
+    let events = await builder.getMany();
+
+    const isMember = user.isMember;
+
+    return events.filter((event) => (event.limitedToMembers ? isMember : true));
   }
 }

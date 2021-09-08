@@ -1,11 +1,18 @@
 import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { EventsResolver } from './events.resolver';
+import { EventsAdminResolver } from './events.admin.resolver';
+import { EventsUserResolver } from './events.user.resolver';
 import { typeOrmModule } from 'src/models';
 import { OauthModule } from 'src/oauth/oauth.module';
+import { BookingService } from './booking.service';
 
 @Module({
   imports: [typeOrmModule(), OauthModule],
-  providers: [EventsService, EventsResolver],
+  providers: [
+    EventsService,
+    EventsAdminResolver,
+    EventsUserResolver,
+    BookingService,
+  ],
 })
 export class EventsModule {}
