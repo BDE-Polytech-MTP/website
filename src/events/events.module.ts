@@ -5,6 +5,7 @@ import { EventsUserResolver } from './events.user.resolver';
 import { typeOrmModule } from 'src/models';
 import { OauthModule } from 'src/oauth/oauth.module';
 import { BookingService } from './booking.service';
+import { BookingsResolver } from './bookings.user.resolver';
 
 @Module({
   imports: [typeOrmModule(), OauthModule],
@@ -13,6 +14,7 @@ import { BookingService } from './booking.service';
     EventsAdminResolver,
     EventsUserResolver,
     BookingService,
+    BookingsResolver,
   ],
 })
 export class EventsModule {}

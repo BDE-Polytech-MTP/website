@@ -8,6 +8,12 @@ export class Booking {
   @Column()
   bookingDate: Date;
 
+  @Column({ primary: true })
+  resourceOwnerId: string;
+
+  @Column({ primary: true })
+  eventId: string;
+
   // Relationships
 
   @ManyToOne(() => ResourceOwner, (resourceOwner) => resourceOwner.bookings, {

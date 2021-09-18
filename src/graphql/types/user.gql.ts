@@ -17,7 +17,7 @@ export class UserType {
   @Field()
   bdeId: string;
 
-  @Field()
+  @Field({ nullable: true })
   membershipDate: Date;
 
   @Field(() => BdeType, { nullable: true })
@@ -25,6 +25,9 @@ export class UserType {
 
   @Field(() => UserSpecialtyType, { nullable: true })
   specialty: UserSpecialtyType;
+
+  @Field()
+  isExtern: boolean;
 
   static fromResourceOwnerModel(ro: ResourceOwner) {
     const user = new UserType();
@@ -38,6 +41,7 @@ export class UserType {
     if (ro.membershipDate) {
       user.membershipDate = ro.membershipDate;
     }
+    user.isExtern = ro.isExtern;
     return user;
   }
 }

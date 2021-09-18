@@ -26,6 +26,7 @@ import { EventsModule } from './events/events.module';
         synchronize: true,
         url: config.get(DATABASE_URL),
         autoLoadEntities: true,
+        logging: true,
       }),
     }),
     ConfigModule.forRoot({
@@ -38,8 +39,7 @@ import { EventsModule } from './events/events.module';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      playground: process.env.NODE_END === 'production' ? false : true,
-      debug: process.env.NODE_END === 'production' ? false : true,
+      debug: process.env.NODE_ENV === 'production' ? false : true,
     }),
     PasswordModule,
     AccountModule,

@@ -90,12 +90,12 @@ export class ResourceOwner {
 
   // Methods
 
-  get isMember() {
+  get isMember(): boolean {
     return this.membershipDate !== null;
   }
 
-  get isExtern() {
-    return this.sponsorResourceOwnerId;
+  get isExtern(): boolean {
+    return !!this.sponsorResourceOwnerId;
   }
 
   hasRole(role: Role) {
