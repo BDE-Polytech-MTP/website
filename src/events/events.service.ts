@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from '../account/roles';
 import { EventSpecification } from '../models/event-specification.entity';
@@ -60,7 +64,7 @@ export class EventsService {
     return await this.eventsRepository.save(event);
   }
 
-  async getEventsAvailablesForUser(user: ResourceOwner) {
+  async getEventsAvailablesForUser(user: ResourceOwner): Promise<Event[]> {
     const placesCounter: keyof EventSpecification = user.isExtern
       ? 'externPlacesCount'
       : 'schoolPlacesCount';
@@ -79,10 +83,28 @@ export class EventsService {
       )
       .andWhere('spec.bdeId = :id', { id: user.bdeId });
 
-    let events = await builder.getMany();
+    const events = await builder.getMany();
 
     const isMember = user.isMember;
 
     return events.filter((event) => (event.limitedToMembers ? isMember : true));
+  }
+
+  async getEventById(eventId: string, user: ResourceOwner): Promise<Event> {
+    const builder = this.eventsRepository
+      .createQueryBuilder('event')
+      .select('event')
+      .leftJoin('event.specifications', 'spec')
+      .addSelect('spec')
+      .where('spec.bdeId = :id', { id: user.bdeId })
+      .andWhere('event.id = :eventId', { eventId });
+
+    const event = await builder.getOne();
+
+    if (!event) {
+      throw new NotFoundException();
+    }
+
+    return event;
   }
 }

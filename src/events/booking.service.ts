@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ForbiddenError } from 'apollo-server-fastify';
 import { Connection, Equal, IsNull, Not, Repository } from 'typeorm';
+import { Role } from '../account/roles';
 import { Booking } from '../models/booking.entity';
 import { Event } from '../models/event.entity';
 import { ResourceOwner } from '../models/resource-owner.entity';
@@ -40,6 +41,48 @@ export class BookingService {
         },
       },
     });
+  }
+
+  /**
+   * Returns a booking of an user (the one with the given id) for an event.
+   *
+   * If specified, query permissions will be performed on given reqAuthor.
+   * An user can access a booking:
+   *  a. The booking concerns the user
+   *  b. The booking doesn't concern the user but he or she has the READ_BOOKINGS role
+   *     and the booking concerns an event of the BDE of the user
+   *
+   * @param eventId The id of the event the booking is for
+   * @param userId The id of the user who booked
+   * @param reqAuthor The user trying to gather the data
+   */
+  async getBooking(
+    eventId: string,
+    userId: string,
+    reqAuthor?: ResourceOwner,
+  ): Promise<Booking> {
+    const booking = await this.bookingsRepository.findOne({
+      relations: ['event'],
+      where: {
+        eventId,
+        resourceOwnerId: userId,
+      },
+    });
+
+    if (reqAuthor && reqAuthor.id !== userId) {
+      if (!reqAuthor.hasRole(Role.READ_BOOKINGS)) {
+        throw new ForbiddenError(
+          `You need ${Role.READ_BOOKINGS} role to read this booking`,
+        );
+      }
+      if (reqAuthor.bdeId !== booking.event.organizerId) {
+        throw new ForbiddenError(
+          "You're not allowed to manage bookings of an event organized by an other BDE",
+        );
+      }
+    }
+
+    return booking;
   }
 
   /**
